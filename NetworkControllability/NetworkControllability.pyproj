@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{37439f74-f312-4770-92bd-ec5e24c7fbd0}</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>networkxGUI.py</StartupFile>
+    <StartupFile>exact_controllability.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -30,6 +30,7 @@
     <Compile Include="networkxGUI.py" />
     <Compile Include="strutral_controllability.py" />
     <Compile Include="NetworkControllability.py" />
+    <Compile Include="test.py" />
     <Compile Include="test_edge_load.py" />
   </ItemGroup>
   <ItemGroup>

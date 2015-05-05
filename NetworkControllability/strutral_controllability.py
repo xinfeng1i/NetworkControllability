@@ -66,12 +66,14 @@ def get_driver_nodes(DG):
     unmatched_nodes_num = len(unmatched_nodes)
 
     # perfect matching
+    isPerfect = False
     if unmatched_nodes_num == 0:
         print '>>> Perfect Match Found ! <<<'
+        isPerfect = True
         unmatched_nodes_num = 1
         unmatched_nodes = [0]
         
-    return (unmatched_nodes_num, unmatched_nodes)
+    return (isPerfect, unmatched_nodes_num, unmatched_nodes)
 
 # test this function
 if __name__ == "__main__":
