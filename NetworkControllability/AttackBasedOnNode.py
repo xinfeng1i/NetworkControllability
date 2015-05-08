@@ -17,6 +17,7 @@ from networkx.utils import powerlaw_sequence
 import operator
 import random
 import csv
+import copy
 
 __author__ = """Xin-Feng Li (silfer.lee@gmail.com)"""
 
@@ -149,6 +150,84 @@ def attack_based_max_betweenness(G):
         tot_T[i]  = i
     return (tot_ND, tot_T, Max_Betweenness_Zero_T)
 
+# TODO test this function
+def node_load_cascade_attack(G, c):
+    """ Cascade attack based on node-capacity
+    """
+    # initial ND, attack time T = 0
+    ret_ND = []
+    ret_T = []
+    T = 0
+    ND, ND_lambda = ECT.get_number_of_driver_nodes(G)
+    ret_ND.append(ND)
+    ret_T.append(T)
+
+    # calculate the init load of each node
+    loads = nx.load_centrality(G)
+    # calculate the capacity of each node
+    capacities = copy.deepcopy(loads)
+    capacities.update((x, y * c) for x, y in capacities.items())
+    # add node attribute capacity and node
+    nx.set_node_attributes(G, 'capacity', capacities)
+    nx.set_node_attributes(G, 'load', loads)
+
+    # find the max load node
+    node = max(loads, key=loads.get)
+    # remove the max-load node
+    nbrs = [i for i in nx.all_neighbors(G, node)]
+    if nx.is_directed(G):
+        for i in nbrs:
+            if G.has_edge(i, node):
+                G.remove_edge(i, node)
+            if G.has_edge(node, i):
+                G.remove_edge(node, i)
+    else:
+        for i in nbrs:
+            G.remove_edge(i, node)
+    
+    # ND value after remove the max-load node
+    T = 1
+    ND, ND_lambda = ECT.get_number_of_driver_nodes(G)
+    ret_T.append(T)
+    ret_ND.append(ND)    
+    # recaculate all loads of a node
+    new_loads = nx.load_centrality(G)
+    nx.set_node_attributes(G, 'load', new_loads)
+    
+    # cascade attack
+    while True:
+        has_overload_node = False
+        for x in G.nodes():
+            if G.node[x]['load'] > G.node[x]['capacity']:
+                # have over load node x
+                has_overload_node = True
+                # remove node (all edges adjacent to it)
+                node  = x
+                nbrs = [i for i in nx.all_neighbors(G, node)]
+                if nx.is_directed(G):
+                    for i in nbrs:
+                        if G.has_edge(i, node):
+                            G.remove_edge(i, node)
+                        if G.has_edge(node, i):
+                            G.remove_edge(node, i)
+                else:
+                    for i in nbrs:
+                        G.remove_edge(i, node)
+                # caluate ND after remove this node, attack time plus 1
+                T = T + 1
+                ND, ND_lambda = ECT.get_number_of_driver_nodes(G)
+                ret_T.append(T)
+                ret_ND.append(ND)
+                # update loads
+                update_loads = nx.load_centrality(G)
+                nx.set_node_attributes(G, 'load', update_loads)
+                break   # break the for loop
+        # if hasn't any node overloaded, cascade end
+        if not has_overload_node:
+            break
+
+    return (ret_ND, ret_T)
+
 
 if __name__ == "__main__":
     #G1 = nx.erdos_renyi_graph(100, 0.05)
@@ -193,3 +272,33 @@ if __name__ == "__main__":
     #    writer = csv.writer(f, delimiter='\t')
     #    writer.writerows(zip(T, ND))
     #print 'index = ', index
+
+    G = nx.Graph()
+    G.add_nodes_from([0, 1, 2, 3])
+    G.add_edge(0, 1)
+    G.add_edge(0, 2)
+    G.add_edge(0, 3)
+    G.add_edge(1, 2)
+    G.add_edge(1, 3)
+    betweenness = nx.betweenness_centrality(G)
+    print 'betweenness:', betweenness
+    loads = nx.load_centrality(G)
+    capacities = copy.deepcopy(loads)
+    capacities.update((a, b * 2) for a, b in capacities.items())
+    nx.set_node_attributes(G, 'capacity', capacities)
+    nx.set_node_attributes(G, 'load', loads)
+    
+
+    print 'capacities:\n'
+    for i in G.nodes():
+        print G.node[i]['capacity']
+
+    print 'loads:\n'
+    for i in G.nodes():
+        print G.node[i]['load']
+
+    print 'update capacities:\n'
+    my_capacities = {0:0, 1:1, 2:2, 3:3}
+    nx.set_node_attributes(G, 'capacity', my_capacities)
+    for i in G.nodes():
+        print G.node[i]['capacity']
