@@ -2,6 +2,7 @@
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 from GUI.mainwindowUI import Ui_MainWindow
+from GUI.mainwindowUI import my_CentralWidget
 from GUI import UIDialog_ER
 import sys
 import networkx as nx
@@ -13,15 +14,14 @@ from threading import Thread
 class Dialog_ER(QtGui.QDialog):
     def __init__(self, parent=None, name='title'):
         QtGui.QDialog.__init__(self, parent)
-        self.resize(300, 200)
         
         grid = QtGui.QGridLayout()
 
-        grid.addWidget(QtGui.QLabel(u'节点数', parent=self), 0, 0, 1, 1)
+        grid.addWidget(QtGui.QLabel('Node Number', parent=self), 0, 0, 1, 1)
         self.number_of_nodes = QtGui.QLineEdit(parent=self)
         grid.addWidget(self.number_of_nodes, 0, 1, 1, 1)
 
-        grid.addWidget(QtGui.QLabel(u'连接概率', parent=self), 1, 0, 1, 1)
+        grid.addWidget(QtGui.QLabel('Connection Probability', parent=self), 1, 0, 1, 1)
         self.connect_probability = QtGui.QLineEdit(parent=self)
         grid.addWidget(self.connect_probability, 1, 1, 1, 1)
 
@@ -67,6 +67,9 @@ class NetworkGUI(QtGui.QMainWindow, Ui_MainWindow):
         ui_dialog = UIDialog_ER.Ui_InputDialog()
         ui_dialog.setupUi(dialog)
         
+        node_num = 0
+        prob = 0.0
+        ok = False
         if dialog.exec_():
             if (ui_dialog.lineEdit_NodeNum.text()).isEmpty() or ui_dialog.lineEdit_ConnectProb.text().isEmpty():
                 QtGui.QMessageBox.critical(self, u'参数错误', u'所有参数必须非空 !')
@@ -87,14 +90,16 @@ class NetworkGUI(QtGui.QMainWindow, Ui_MainWindow):
                 QtGui.QMessageBox.critical(self, u'参数错误', u'节点数量必须在 [1, 1000] 之间 !')
             if prob < 0.0 or prob > 1.0:
                 QtGui.QMessageBox.critical(self, u'参数错误', u'连接概率必须在 [0, 1] 之间 !')
-
-            self.global_network.clear()
-            self.global_network = nx.erdos_renyi_graph(node_num, prob)
-            #print self.global_network.number_of_nodes()
-            #print self.global_network.number_of_edges()
-            #nx.draw(self.global_network)
-
         dialog.destroy()
+
+        self.global_network.clear()
+        self.global_network = nx.erdos_renyi_graph(node_num, prob)
+        print self.global_network.number_of_nodes()
+        print self.global_network.number_of_edges()
+        G=nx.path_graph(10)
+        self.centralWidget.update_centralWidget()
+
+        
 
     def Draw_Network(self):
         nx.draw(self.global_network)

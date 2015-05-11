@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{37439f74-f312-4770-92bd-ec5e24c7fbd0}</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>AttackBasedOnNode.py</StartupFile>
+    <StartupFile>MainWindow.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -28,6 +28,7 @@
     <Compile Include="AttackBasedOnNode.py" />
     <Compile Include="exact_controllability.py" />
     <Compile Include="GUI\__init__.py" />
+    <Compile Include="MainWindow.py" />
     <Compile Include="networkxGUI.py" />
     <Compile Include="strutral_controllability.py" />
     <Compile Include="NetworkControllability.py" />

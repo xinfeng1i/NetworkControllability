@@ -38,5 +38,18 @@ def exact_controllability_run_on_ER(n, prob_start, prob_end, data_cnt, runcnt):
     plt.ylabel('$n_D$')
     plt.show()
 
+class A():
+    def __init__(self):
+        self.x = 10
+        self.y = 20
+class B():
+    def __init__(self):
+        self.a = 30
+        self.b = 40
+        self.A = A()
+
 if __name__ == "__main__":
-    exact_controllability_run_on_ER(100, 0.0, 0.04, 10, 5)
+    #exact_controllability_run_on_ER(100, 0.0, 0.04, 10, 5)
+
+    b = B()
+    print b.A.x 
