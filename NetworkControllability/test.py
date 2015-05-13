@@ -49,7 +49,11 @@ class B():
         self.A = A()
 
 if __name__ == "__main__":
-    #exact_controllability_run_on_ER(100, 0.0, 0.04, 10, 5)
+    d = {1:0, 2:5, 3:100, 6:3, 100:3}
 
-    b = B()
-    print b.A.x 
+    min_value = min([x for x in d.values() if x - 0.0 > 1E-8])
+    min_key = None
+    for k, v in d.iteritems():
+        if v == min_value:
+            min_key = k
+            break

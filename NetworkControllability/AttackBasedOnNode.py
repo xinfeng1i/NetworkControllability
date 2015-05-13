@@ -1,8 +1,8 @@
 """
-explore all kinds of attack on nodes
-including
+Node-based attack strategy, including:
     * random attack
     * max degree based attack
+    * max betweenness based attack
     * node load based cascade attack
 """
 #   Copyright (C) 2015 by
@@ -18,6 +18,7 @@ import operator
 import random
 import csv
 import copy
+import subprocess, os # for run matlab to plot the figure
 
 __author__ = """Xin-Feng Li (silfer.lee@gmail.com)"""
 
@@ -42,6 +43,10 @@ def attack_based_random(G):
     n = G.number_of_nodes()
     tot_ND = [0] * (n+1)
     tot_T = [0] * (n+1)
+
+    ND, ND_lambda = ECT.get_number_of_driver_nodes(G)
+    tot_ND[0] = ND
+    tot_T[0] = 0
 
     all_nodes = G.nodes()
     random.shuffle(all_nodes)
@@ -153,7 +158,6 @@ def attack_based_max_betweenness(G):
         if Max_Betweenness_Zero_T == -1 and abs(all_betweenness[node] - 0.0) < 1E-8:
             Max_Betweenness_Zero_T = i
         
-        print "remove node:", node
         # remove all the edges adjacent to node
         if not nx.is_directed(G):   # undirected graph
             for key in G[node].keys():
@@ -163,7 +167,6 @@ def attack_based_max_betweenness(G):
                 G.remove_edge(node, x)
             for x in [u for u, v in G.in_edges_iter(node)]:
                 G.remove_edge(x, node)
-        print "after remove node betweenness:", nx.betweenness_centrality(G)
         # calculate driver node number ND
         ND, ND_lambda = ECT.get_number_of_driver_nodes(G)
         tot_ND[i] = ND
@@ -222,7 +225,7 @@ def node_load_cascade_attack(G, c):
                 # have over load node x
                 has_overload_node = True
                 # remove node (all edges adjacent to it)
-                node  = x
+                node = x
                 nbrs = [i for i in nx.all_neighbors(G, node)]
                 if nx.is_directed(G):
                     for i in nbrs:
@@ -250,84 +253,48 @@ def node_load_cascade_attack(G, c):
 
 
 if __name__ == "__main__":
-    #G1 = nx.erdos_renyi_graph(100, 0.05)
-    #G2 = G1.copy()
-    #G3 = G1.copy()
+   
+    ################################################################
+    # test max-betweenness attack
+    #G = nx.Graph()
+    #G.add_nodes_from([0, 1, 2, 3])
+    #G.add_edge(0, 1)
+    #G.add_edge(0, 2)
+    #G.add_edge(0, 3)
+    #G.add_edge(1, 2)
+    #G.add_edge(2, 3)
+    #betweenness = nx.betweenness_centrality(G)
+    #print 'betweenness:', betweenness
 
-    #(ND_degree, T_degree) = attack_based_max_degree(G1)
-    #with open("results/Degree_Attack_ER100005.csv", "w") as f:
-    #    writer = csv.writer(f, delimiter='\t')
-    #    writer.writerows(zip(T_degree, ND_degree))
+    G11 = nx.erdos_renyi_graph(100, 0.90)
+    #G11 = nx.barabasi_albert_graph(100, 3)
+    print 'Graph info:\n', nx.info(G11)
+    G12 = G11.copy()
+    G13 = G11.copy()
+    G14 = G11.copy()
 
-    
-    #(ND, T) = attack_based_random(G2)
-    #with open("results/Random_Attack_ER100005.csv", "w") as f:
-    #    writer = csv.writer(f, delimiter='\t')
-    #    writer.writerows(zip(T, ND))
+    (ND, T) = attack_based_random(G11)
+    with open("results/RT.csv", "w") as f:
+        writer = csv.writer(f, delimiter=',')
+        writer.writerows(zip(T, ND))
 
-    #(ND, T, index) = attack_based_max_betweenness(G3)
-    #with open("results/Betweenness_Attack_ER100005.csv", "w") as f:
-    #    writer = csv.writer(f, delimiter='\t')
-    #    writer.writerows(zip(T, ND))
-    #print 'index = ', index
+    (ND_degree, T_degree) = attack_based_max_degree(G12)
+    with open("results/DT.csv", "w") as f:
+        writer = csv.writer(f, delimiter=',')
+        writer.writerows(zip(T_degree, ND_degree))
 
-    #****************************************************************
-    #G11 = nx.barabasi_albert_graph(100, 2);
-    #G12 = G11.copy()
-    #G13 = G11.copy()
+    (ND_betweenness, T_betweenness, index_betweenness) = attack_based_max_betweenness(G13)
+    with open("results/BT.csv", "w") as f:
+        writer = csv.writer(f, delimiter=',')
+        writer.writerows(zip(T_betweenness, ND_betweenness))
+    print 'index_betweenness = ', index_betweenness
+    print 'After betweenness attack:', nx.info(G13)
 
-    #(ND_degree, T_degree) = attack_based_max_degree(G11)
-    #with open("results/Degree_Attack_SF15.csv", "w") as f:
-    #    writer = csv.writer(f, delimiter='\t')
-    #    writer.writerows(zip(T_degree, ND_degree))
+    ND_capacity, T_capacity = node_load_cascade_attack(G14, 1.15)
+    with open("results/CT.csv", "w") as f:
+        writer = csv.writer(f, delimiter=',')
+        writer.writerows(zip(T_capacity, ND_capacity))
 
-    
-    #(ND, T) = attack_based_random(G12)
-    #with open("results/Random_Attack_SF15.csv", "w") as f:
-    #    writer = csv.writer(f, delimiter='\t')
-    #    writer.writerows(zip(T, ND))
-
-    #(ND, T, index) = attack_based_max_betweenness(G13)
-    #with open("results/Betweenness_Attack_SF15.csv", "w") as f:
-    #    writer = csv.writer(f, delimiter='\t')
-    #    writer.writerows(zip(T, ND))
-    #print 'index = ', index
-
-    G = nx.Graph()
-    G.add_nodes_from([0, 1, 2, 3])
-    G.add_edge(0, 1)
-    G.add_edge(0, 2)
-    G.add_edge(0, 3)
-    G.add_edge(1, 2)
-    G.add_edge(2, 3)
-    betweenness = nx.betweenness_centrality(G)
-    print 'betweenness:', betweenness
-
-    (ND, T, zeroIndex) = attack_based_max_betweenness(G)
-    print "ND: ", ND
-    print "T:", T;
-    print "Zero Index:", zeroIndex
-    plt.plot(T, ND, 'ro')
-    plt.show()
-
-
-    #loads = nx.load_centrality(G)
-    #capacities = copy.deepcopy(loads)
-    #capacities.update((a, b * 2) for a, b in capacities.items())
-    #nx.set_node_attributes(G, 'capacity', capacities)
-    #nx.set_node_attributes(G, 'load', loads)
-    
-
-    #print 'capacities:\n'
-    #for i in G.nodes():
-    #    print G.node[i]['capacity']
-
-    #print 'loads:\n'
-    #for i in G.nodes():
-    #    print G.node[i]['load']
-
-    #print 'update capacities:\n'
-    #my_capacities = {0:0, 1:1, 2:2, 3:3}
-    #nx.set_node_attributes(G, 'capacity', my_capacities)
-    #for i in G.nodes():
-    #    print G.node[i]['capacity']
+    os.chdir(r'D:\Program Files\MATLAB\R2010b\ComplexNetwork2015')
+    print os.listdir(os.curdir)
+    #subprocess.Popen(['matlab', 'attacktest.m'])
