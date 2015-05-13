@@ -116,8 +116,26 @@ def attack_based_max_degree(G):
 
 
 #####################################################################
-# TODO:To check Rightness
 def attack_based_max_betweenness(G):
+    """ Recalculate betweenness attack
+
+    Basic Idea:
+    ----------
+    Every time we remove the node with max betweeneness-centrality, then 
+    recalcuate all nodes' betweenness NOTE that here remove a node only 
+    remove all the edges adjacent to it.
+
+    Parameters:
+    ----------
+    G: graph (directed or undirected)
+
+    Returns:
+    -------
+    tot_ND:     the number of driver nodes after every node removed
+    tot_T:      the number of removed nodes
+    Max_Betweenness_Zero_T: the number of removed nodes such that 
+                            all nodes' betweenness centrality have been zeros
+    """
     n = G.number_of_nodes()
     tot_ND = [0] * (n+1)
     tot_T = [0] * (n+1)
@@ -134,7 +152,8 @@ def attack_based_max_betweenness(G):
         node = max(all_betweenness, key=all_betweenness.get)
         if Max_Betweenness_Zero_T == -1 and abs(all_betweenness[node] - 0.0) < 1E-8:
             Max_Betweenness_Zero_T = i
-
+        
+        print "remove node:", node
         # remove all the edges adjacent to node
         if not nx.is_directed(G):   # undirected graph
             for key in G[node].keys():
@@ -144,6 +163,7 @@ def attack_based_max_betweenness(G):
                 G.remove_edge(node, x)
             for x in [u for u, v in G.in_edges_iter(node)]:
                 G.remove_edge(x, node)
+        print "after remove node betweenness:", nx.betweenness_centrality(G)
         # calculate driver node number ND
         ND, ND_lambda = ECT.get_number_of_driver_nodes(G)
         tot_ND[i] = ND
@@ -279,26 +299,35 @@ if __name__ == "__main__":
     G.add_edge(0, 2)
     G.add_edge(0, 3)
     G.add_edge(1, 2)
-    G.add_edge(1, 3)
+    G.add_edge(2, 3)
     betweenness = nx.betweenness_centrality(G)
     print 'betweenness:', betweenness
-    loads = nx.load_centrality(G)
-    capacities = copy.deepcopy(loads)
-    capacities.update((a, b * 2) for a, b in capacities.items())
-    nx.set_node_attributes(G, 'capacity', capacities)
-    nx.set_node_attributes(G, 'load', loads)
+
+    (ND, T, zeroIndex) = attack_based_max_betweenness(G)
+    print "ND: ", ND
+    print "T:", T;
+    print "Zero Index:", zeroIndex
+    plt.plot(T, ND, 'ro')
+    plt.show()
+
+
+    #loads = nx.load_centrality(G)
+    #capacities = copy.deepcopy(loads)
+    #capacities.update((a, b * 2) for a, b in capacities.items())
+    #nx.set_node_attributes(G, 'capacity', capacities)
+    #nx.set_node_attributes(G, 'load', loads)
     
 
-    print 'capacities:\n'
-    for i in G.nodes():
-        print G.node[i]['capacity']
+    #print 'capacities:\n'
+    #for i in G.nodes():
+    #    print G.node[i]['capacity']
 
-    print 'loads:\n'
-    for i in G.nodes():
-        print G.node[i]['load']
+    #print 'loads:\n'
+    #for i in G.nodes():
+    #    print G.node[i]['load']
 
-    print 'update capacities:\n'
-    my_capacities = {0:0, 1:1, 2:2, 3:3}
-    nx.set_node_attributes(G, 'capacity', my_capacities)
-    for i in G.nodes():
-        print G.node[i]['capacity']
+    #print 'update capacities:\n'
+    #my_capacities = {0:0, 1:1, 2:2, 3:3}
+    #nx.set_node_attributes(G, 'capacity', my_capacities)
+    #for i in G.nodes():
+    #    print G.node[i]['capacity']
