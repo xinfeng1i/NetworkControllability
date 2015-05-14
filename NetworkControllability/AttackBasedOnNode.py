@@ -173,7 +173,74 @@ def attack_based_max_betweenness(G):
         tot_T[i]  = i
     return (tot_ND, tot_T, Max_Betweenness_Zero_T)
 
-# TODO test this function
+
+# TODO: Test
+#########################################################################################
+def attack_based_max_closeness(G):
+    """ Recalcuat closeness attack
+    """
+    n = G.number_of_nodes()
+    tot_ND = [0] * (n+1)
+    tot_T = [0] * (n+1)
+
+    ND, ND_lambda = ECT.get_number_of_driver_nodes(G)
+    tot_ND[0] = ND
+    tot_T[0] = 0
+
+    # remember when all the closeness have been zero for all nodes
+    for i in range(1, n+1):
+        all_closeness = nx.closeness_centrality(G)
+        # get node with max betweenness       
+        node = max(all_closeness, key=all_closeness.get)
+        
+        # remove all the edges adjacent to node
+        if not nx.is_directed(G):   # undirected graph
+            for key in G[node].keys():
+                G.remove_edge(node, key)
+        else:   # directed graph
+            for x in [v for u, v in G.out_edges_iter(node)]:
+                G.remove_edge(node, x)
+            for x in [u for u, v in G.in_edges_iter(node)]:
+                G.remove_edge(x, node)
+        # calculate driver node number ND
+        ND, ND_lambda = ECT.get_number_of_driver_nodes(G)
+        tot_ND[i] = ND
+        tot_T[i]  = i
+    return (tot_ND, tot_T, Max_Betweenness_Zero_T)
+
+# TODO: Test
+#########################################################################################
+def attack_based_max_eigenvector(G):
+    """ Recalculate eigenvector centrality attack
+    """
+    n = G.number_of_nodes()
+    tot_ND = [0] * (n+1)
+    tot_T = [0] * (n+1)
+
+    ND, ND_lambda = ECT.get_number_of_driver_nodes(G)
+    tot_ND[0] = ND
+    tot_T[0] = 0
+
+    for i in range(1, n+1):
+        # calculate all nodes' eigenvector centrality
+        allEigenvectorCentrality = nx.eigenvector_centrality(G, max_iter=1000, weight=None)
+        # get node with max eigenvector centrality       
+        node = max(allEigenvectorCentrality, key=allEigenvectorCentrality.get)
+        # remove all the edges adjacent to node
+        if not nx.is_directed(G):   # undirected graph
+            for key in G[node].keys():
+                G.remove_edge(node, key)
+        else:   # directed graph
+            for x in [v for u, v in G.out_edges_iter(node)]:
+                G.remove_edge(node, x)
+            for x in [u for u, v in G.in_edges_iter(node)]:
+                G.remove_edge(x, node)
+        ND, ND_lambda = ECT.get_number_of_driver_nodes(G)
+        tot_ND[i] = ND
+        tot_T[i]  = i
+    return (tot_ND, tot_T)
+
+#################################################################################
 def node_load_cascade_attack(G, c):
     """ Cascade attack based on node-capacity
 
