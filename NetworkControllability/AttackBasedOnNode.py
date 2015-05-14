@@ -176,6 +176,27 @@ def attack_based_max_betweenness(G):
 # TODO test this function
 def node_load_cascade_attack(G, c):
     """ Cascade attack based on node-capacity
+
+    Basic Idea:
+    -----------
+    Remove the node with max-load, then check if there exists some nodes
+    whose load is larger than their capacity, if it is then remove this node.
+    update all nodes' load, continue check, until there isn't any overloaded nodes
+
+    Parameters:
+    -----------
+    G:  NetworkX Graph (directed or undirected)
+    c:  tolerance coefficient
+
+    Returns:
+    --------
+    ret_ND: the number of driver nodes with node being removed
+    ret_T : the number of removed nodes
+
+    Note:
+    ----
+    REMOVE NODES here only remove all the nodes's edges (in edges & out edges for directed graph)
+    but not the node itself.
     """
     # initial ND, attack time T = 0
     ret_ND = []
