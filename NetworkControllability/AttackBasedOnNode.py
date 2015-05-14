@@ -219,35 +219,40 @@ def node_load_cascade_attack(G, c):
     
     # cascade attack
     while True:
+        # check all the nodes to find whether exist overloaded node
         has_overload_node = False
+        node = None
         for x in G.nodes():
             if G.node[x]['load'] > G.node[x]['capacity']:
                 # have over load node x
                 has_overload_node = True
                 # remove node (all edges adjacent to it)
                 node = x
-                nbrs = [i for i in nx.all_neighbors(G, node)]
-                if nx.is_directed(G):
-                    for i in nbrs:
-                        if G.has_edge(i, node):
-                            G.remove_edge(i, node)
-                        if G.has_edge(node, i):
-                            G.remove_edge(node, i)
-                else:
-                    for i in nbrs:
-                        G.remove_edge(i, node)
-                # caluate ND after remove this node, attack time plus 1
-                T = T + 1
-                ND, ND_lambda = ECT.get_number_of_driver_nodes(G)
-                ret_T.append(T)
-                ret_ND.append(ND)
-                # update loads
-                update_loads = nx.load_centrality(G)
-                nx.set_node_attributes(G, 'load', update_loads)
-                break   # break the for loop
-        # if hasn't any node overloaded, cascade end
+                break
+        
+        # if there is no overloaded node, cascade ends
         if not has_overload_node:
             break
+
+        # else remove this node and recalucated all nodes' load
+        nbrs = [i for i in nx.all_neighbors(G, node)]
+        if nx.is_directed(G):
+            for i in nbrs:
+                if G.has_edge(i, node):
+                    G.remove_edge(i, node)
+                if G.has_edge(node, i):
+                    G.remove_edge(node, i)
+        else:
+            for i in nbrs:
+                G.remove_edge(i, node)
+        # caluate ND after remove this node, attack time plus 1
+        T = T + 1
+        ND, ND_lambda = ECT.get_number_of_driver_nodes(G)
+        ret_T.append(T)
+        ret_ND.append(ND)
+        # update loads
+        update_loads = nx.load_centrality(G)
+        nx.set_node_attributes(G, 'load', update_loads)
 
     return (ret_ND, ret_T)
 
