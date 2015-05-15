@@ -109,7 +109,11 @@ def get_driver_nodes(G):
         if miu_lambda > ND:
             ND = miu_lambda
             ND_lambda = my_lambda
-
+    
+    # if ND_lambda is complex number, for simplicity, only keep its real part
+    if isinstance(ND_lambda, complex):
+        ND_lambda = ND_lambda.real
+    
     middle_matrix = A - ND_lambda * np.eye(N)   # get the middle matrix A - \lambda * I_N
     (reduced_matrix, pivot_array) = sympy.Matrix(middle_matrix).rref()  # rref get the reduced row echelon form
     all_nodes = G.nodes() 
