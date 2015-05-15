@@ -3,6 +3,7 @@
 
 # Ingore all data file
 *.csv
+*.txt
 
 # User-specific files
 *.suo
