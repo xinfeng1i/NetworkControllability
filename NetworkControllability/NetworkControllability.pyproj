@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{37439f74-f312-4770-92bd-ec5e24c7fbd0}</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>AttackBasedOnNode.py</StartupFile>
+    <StartupFile>NodeAttackExperiments.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -26,10 +26,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AttackBasedOnNode.py" />
+    <Compile Include="ControllabilityRobustnessBasedOnEdgeAttack.py" />
+    <Compile Include="ControllabilityRobustnessBasedOnNodeAttack.py" />
     <Compile Include="exact_controllability.py" />
     <Compile Include="GUI\__init__.py" />
     <Compile Include="MainWindow.py" />
     <Compile Include="networkxGUI.py" />
+    <Compile Include="NodeAttackExperiments.py" />
     <Compile Include="strutral_controllability.py" />
     <Compile Include="NetworkControllability.py" />
     <Compile Include="test.py" />
