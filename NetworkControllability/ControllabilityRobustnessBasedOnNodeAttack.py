@@ -32,14 +32,14 @@ def RandomNodeAttack(G, remove_fraction = 1.0):
 
     tot_ND = [0] * (N_rm + 1)
     tot_T = [0] * (N_rm + 1)
-    tot_SCC = [0] * (N_rm + 1)
+    #tot_SCC = [0] * (N_rm + 1)
 
     ND, ND_lambda = ECT.get_number_of_driver_nodes(G)
     #giant_SCC = nx.number_connected_components(G)
-    giant_SCC = max(nx.connected_component_subgraphs(G), key=len)
+    #giant_SCC = max(nx.connected_component_subgraphs(G), key=len)
     tot_ND[0] = ND
     tot_T[0] = 0
-    tot_SCC[0] = giant_SCC.number_of_nodes()
+    #tot_SCC[0] = giant_SCC.number_of_nodes()
 
     # random all nodes of G
     all_nodes = G.nodes()
@@ -53,12 +53,12 @@ def RandomNodeAttack(G, remove_fraction = 1.0):
             break
         ND, ND_lambda = ECT.get_number_of_driver_nodes(G)
         #giant_SCC = nx.number_connected_components(G)
-        giant_SCC = max(nx.connected_component_subgraphs(G), key=len)
+        #giant_SCC = max(nx.connected_component_subgraphs(G), key=len)
         tot_ND[i+1] = ND
         tot_T [i+1] = i + 1
-        tot_SCC[i+1] = giant_SCC.number_of_nodes()
+        #tot_SCC[i+1] = giant_SCC.number_of_nodes()
 
-    return (tot_ND, tot_T, tot_SCC)
+    return (tot_ND, tot_T)
 
 
 
