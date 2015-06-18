@@ -1,4 +1,5 @@
 import networkx as nx
+import matplotlib.pyplot as plt
 
 G = nx.DiGraph()
 G.add_nodes_from([0, 1, 2, 3, 4])
@@ -47,6 +48,9 @@ for key, value in mydict:
     print key, value, mydict[(key, value)]
 
 nodesnodes = G;
+
+nx.draw(G)
+plt.show()
 print nodesnodes;
 
 
