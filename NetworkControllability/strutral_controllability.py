@@ -9,6 +9,7 @@ structral controllability measure, driver nodes
 import networkx as nx
 import matplotlib.pyplot as plt
 
+
 __author__ = """Xin-Feng Li (silfer.lee@gmail.com)"""
 
 def get_driver_nodes(DG):
@@ -75,12 +76,54 @@ def get_driver_nodes(DG):
         
     return (isPerfect, unmatched_nodes_num, unmatched_nodes)
 
+
+###################################################
+#
+# The follwoing functions come from github
+#
+####################################################
+def to_bipartite(G):
+    """Converts Directed graph G to an undirected bipartite graph
+    H."""
+    if not G.is_directed():
+        raise nx.NetworkXError("G must be a directed Graph")
+    if G.is_multigraph():
+        H = nx.MultiGraph()
+    else:
+        H = nx.Graph()
+    for n in G:
+        H.add_node((n,'+'))
+        H.add_node((n,'-'))
+    for (u,v) in G.edges_iter():
+        H.add_edge((u,'+'),(v,'-'))
+
+    return H
+
+def control_nodes(G):
+    H = to_bipartite(G)
+    M = nx.max_weight_matching(H,True)
+    matched = set(v for (v,sign) in M.values() if sign == '-') | \
+              set(u for (u,sign) in M.keys() if sign == '-')
+    n_D = set(G) - matched
+    if len(n_D) == 0:
+        return [G.nodes_iter().next()]
+    else:
+        return list(n_D)
+
+def controllability(G):
+    return len(control_nodes(G))/float(len(G))
+
+
+
+
 # test this function
 if __name__ == "__main__":
     DG = nx.DiGraph()
     DG_edges = [(0,2), (0,3), (0,4), (0,5), (1,4), (1,5)]
     DG.add_edges_from(DG_edges)
-    n, nodes = get_driver_nodes(DG)
+    #n, nodes = get_driver_nodes(DG)
+    nodes = control_nodes(DG)
+    n = len(nodes)
     print "\n"
     print "node num:", n
     print "nodes:", nodes
@@ -93,7 +136,9 @@ if __name__ == "__main__":
     G2.add_edge(1-1,2-1)
     G2.add_edge(2-1,3-1)
     G2.add_edge(3-1,4-1)
-    n, nodes = get_driver_nodes(G2)
+    #n, nodes = get_driver_nodes(G2)
+    nodes = control_nodes(G2)
+    n = len(nodes)
     print "\n"
     print "G2 nodes:", G2.nodes();
     print "node num:", n
@@ -111,7 +156,9 @@ if __name__ == "__main__":
     G3.add_edge(1-1,2-1)
     G3.add_edge(1-1,3-1)
     G3.add_edge(1-1,4-1)
-    n, nodes = get_driver_nodes(G3)
+    #n, nodes = get_driver_nodes(G3)
+    nodes = control_nodes(G3)
+    n = len(nodes)
     print "\n"
     print "G3 nodes:", G3.nodes();
     print "node num:", n
@@ -134,7 +181,9 @@ if __name__ == "__main__":
     G4.add_edge(1-1,5-1)
     G4.add_edge(1-1,6-1)
     G4.add_edge(2-1,6-1)
-    n, nodes = get_driver_nodes(G4)
+    #n, nodes = get_driver_nodes(G4)
+    nodes = control_nodes(G4)
+    n = len(nodes)
     print "\n"
     print "G4 nodes:", G4.nodes();
     print "node num:", n
@@ -156,7 +205,9 @@ if __name__ == "__main__":
     G5.add_edge(4-1, 1-1)
     G5.add_edge(4-1, 2-1)
     G5.add_edge(4-1, 3-1)
-    n, nodes = get_driver_nodes(G5)
+    #n, nodes = get_driver_nodes(G5)
+    nodes = control_nodes(G5)
+    n = len(nodes)
     print "\n"
     print "G5 nodes:", G5.nodes();
     print "node num:", n
