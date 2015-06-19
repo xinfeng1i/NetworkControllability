@@ -14,6 +14,9 @@ Controllability of Complex Network Software Based On Networkx
 * Matplotlib
 * PyQt 4.8
 
+## Screenshot
+![](https://github.com/python27/NetworkControllability/blob/master/NetworkControllability/imgs/screenshort.png)
+
 ## Installation
 TODO
 
