@@ -277,6 +277,13 @@ class MainWindow(QtGui.QMainWindow):
         self.network_menu.addAction('Karate Club Network', self.network_menu_karate_club_network_action)
         self.menuBar().addMenu(self.network_menu)
 
+        # Features menu
+        self.feature_menu = QtGui.QMenu("Features", self)
+        self.feature_menu.addAction("Degree & Degree Distribution", self.feature_menu_degree_action)
+        self.feature_menu.addAction("Clustering Coefficients", self.feature_menu_clusteringcoefficient_action)
+        self.feature_menu.addAction("Diameter", self.feature_menu_diameter_action)
+        self.menuBar().addMenu(self.feature_menu)
+
         # centrality menu
         self.centrality_menu = QtGui.QMenu('&Centrality', self)
         self.centrality_menu.addAction('Degree Centrality', self.centrality_menu_NodeDegree_action)
@@ -299,8 +306,12 @@ class MainWindow(QtGui.QMainWindow):
         self.robustness_menu.addAction('Cascaded Attack based on Node-Capacity', self.robustness_menu_CascadeBasedonNodeCapacity_action)
         self.menuBar().addMenu(self.robustness_menu)
 
+        # Draw Menu
+        
+
         # about menu
         self.about_menu = QtGui.QMenu('&About', self)
+        self.about_menu.addAction('Network Info', self.about_menu_aboutNetwork_action)
         self.about_menu.addAction('About', self.about_menu_About_action)
         self.menuBar().addMenu(self.about_menu)
 
@@ -329,106 +340,115 @@ class MainWindow(QtGui.QMainWindow):
     ##################################################################
     def network_menu_complete_graph_action(self):
         text, ok = QtGui.QInputDialog.getText(self, 'Input Dialog', 'Node Num N:')
-        n = int(text)
-        global GLOBAL_NETWORK
-        GLOBAL_NETWORK.clear()
-        GLOBAL_NETWORK = nx.complete_graph(n)
-        pos = nx.layout.circular_layout(GLOBAL_NETWORK)
-        self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+        if ok:
+            n = int(text)
+            global GLOBAL_NETWORK
+            GLOBAL_NETWORK.clear()
+            GLOBAL_NETWORK = nx.complete_graph(n)
+            pos = nx.layout.circular_layout(GLOBAL_NETWORK)
+            self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
 
 
     def network_menu_ERNetwork_action(self):
         dialog = Dialog_ER(self)
         result = dialog.exec_()
-        n = dialog.NumberofNodes()
-        p = dialog.ConnectProbability()
-        global GLOBAL_NETWORK
-        GLOBAL_NETWORK.clear()
-        GLOBAL_NETWORK = nx.erdos_renyi_graph(n, p)
-        pos = nx.spring_layout(GLOBAL_NETWORK)
-        self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+        if result == QtGui.QDialog.Accepted:
+            n = dialog.NumberofNodes()
+            p = dialog.ConnectProbability()
+            global GLOBAL_NETWORK
+            GLOBAL_NETWORK.clear()
+            GLOBAL_NETWORK = nx.erdos_renyi_graph(n, p)
+            pos = nx.spring_layout(GLOBAL_NETWORK)
+            self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
 
     def directed_network_menu_ERNetwork_action(self):
         dialog = Dialog_ER(self)
         result = dialog.exec_()
-        n = dialog.NumberofNodes()
-        p = dialog.ConnectProbability()
-        global GLOBAL_NETWORK
-        GLOBAL_NETWORK.clear()
-        GLOBAL_NETWORK = nx.erdos_renyi_graph(n, p, directed=True)
-        pos = nx.spectral_layout(GLOBAL_NETWORK)
-        self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+        if result == QtGui.QDialog.Accepted:
+            n = dialog.NumberofNodes()
+            p = dialog.ConnectProbability()
+            global GLOBAL_NETWORK
+            GLOBAL_NETWORK.clear()
+            GLOBAL_NETWORK = nx.erdos_renyi_graph(n, p, directed=True)
+            pos = nx.spectral_layout(GLOBAL_NETWORK)
+            self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
     
     def network_menu_WSNetwork_action(self):
         dialog = Dialog_WS(self)
         result = dialog.exec_()
-        n = dialog.NumberofNodes()
-        k = dialog.NumberofNeighbors()
-        p = dialog.ConnectProbability()
-        global GLOBAL_NETWORK
-        GLOBAL_NETWORK.clear()
-        GLOBAL_NETWORK = nx.watts_strogatz_graph(n, k, p)
-        pos = nx.layout.circular_layout(GLOBAL_NETWORK)
-        self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+        if result == QtGui.QDialog.Accepted:
+            n = dialog.NumberofNodes()
+            k = dialog.NumberofNeighbors()
+            p = dialog.ConnectProbability()
+            global GLOBAL_NETWORK
+            GLOBAL_NETWORK.clear()
+            GLOBAL_NETWORK = nx.watts_strogatz_graph(n, k, p)
+            pos = nx.layout.circular_layout(GLOBAL_NETWORK)
+            self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
 
     def network_menu_directed_WSNetwork_action(self):
         dialog = Dialog_WS(self)
         result = dialog.exec_()
-        n = dialog.NumberofNodes()
-        k = dialog.NumberofNeighbors()
-        p = dialog.ConnectProbability()
-        global GLOBAL_NETWORK
-        GLOBAL_NETWORK.clear()
-        GLOBAL_NETWORK = NM.directed_watts_strogatz_graph(n,k,p)
-        pos = nx.layout.circular_layout(GLOBAL_NETWORK)
-        self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+        if result == QtGui.QDialog.Accepted:
+            n = dialog.NumberofNodes()
+            k = dialog.NumberofNeighbors()
+            p = dialog.ConnectProbability()
+            global GLOBAL_NETWORK
+            GLOBAL_NETWORK.clear()
+            GLOBAL_NETWORK = NM.directed_watts_strogatz_graph(n,k,p)
+            pos = nx.layout.circular_layout(GLOBAL_NETWORK)
+            self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
 
     def network_menu_NWNetwork_action(self):
         dialog = Dialog_NW(self)
         result = dialog.exec_()
-        n = dialog.NumberofNodes()
-        k = dialog.NumberofNeighbors()
-        p = dialog.ConnectProbability()
-        global GLOBAL_NETWORK
-        GLOBAL_NETWORK.clear()
-        GLOBAL_NETWORK = nx.newman_watts_strogatz_graph(n, k, p)
-        pos = nx.layout.circular_layout(GLOBAL_NETWORK)
-        self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+        if result == QtGui.QDialog.Accepted:
+            n = dialog.NumberofNodes()
+            k = dialog.NumberofNeighbors()
+            p = dialog.ConnectProbability()
+            global GLOBAL_NETWORK
+            GLOBAL_NETWORK.clear()
+            GLOBAL_NETWORK = nx.newman_watts_strogatz_graph(n, k, p)
+            pos = nx.layout.circular_layout(GLOBAL_NETWORK)
+            self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
 
     def network_menu_directed_NWNetwork_action(self):
         dialog = Dialog_NW(self)
         result = dialog.exec_()
-        n = dialog.NumberofNodes()
-        k = dialog.NumberofNeighbors()
-        p = dialog.ConnectProbability()
-        global GLOBAL_NETWORK
-        GLOBAL_NETWORK.clear()
-        GLOBAL_NETWORK = NM.directed_newman_watts_strogatz_graph(n,k,p)
-        pos = nx.layout.circular_layout(GLOBAL_NETWORK)
-        self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+        if result == QtGui.QDialog.Accepted:
+            n = dialog.NumberofNodes()
+            k = dialog.NumberofNeighbors()
+            p = dialog.ConnectProbability()
+            global GLOBAL_NETWORK
+            GLOBAL_NETWORK.clear()
+            GLOBAL_NETWORK = NM.directed_newman_watts_strogatz_graph(n,k,p)
+            pos = nx.layout.circular_layout(GLOBAL_NETWORK)
+            self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
 
 
     def network_menu_BANetwork_action(self):
         dialog = Dialog_BA(self)
         result = dialog.exec_()
-        n = dialog.NumberofNodes()
-        m = dialog.NumberofAddedNodes()
-        global GLOBAL_NETWORK
-        GLOBAL_NETWORK.clear()
-        GLOBAL_NETWORK = nx.barabasi_albert_graph(n, m)
-        pos = nx.layout.spring_layout(GLOBAL_NETWORK)
-        self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+        if result == QtGui.QDialog.Accepted:
+            n = dialog.NumberofNodes()
+            m = dialog.NumberofAddedNodes()
+            global GLOBAL_NETWORK
+            GLOBAL_NETWORK.clear()
+            GLOBAL_NETWORK = nx.barabasi_albert_graph(n, m)
+            pos = nx.layout.spring_layout(GLOBAL_NETWORK)
+            self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
 
     def network_menu_directed_BANetwork_action(self):
         dialog = Dialog_BA(self)
         result = dialog.exec_()
-        n = dialog.NumberofNodes()
-        m = dialog.NumberofAddedNodes()
-        global GLOBAL_NETWORK
-        GLOBAL_NETWORK.clear()
-        GLOBAL_NETWORK = NM.directed_barabasi_albert_graph(n, m)
-        pos = nx.layout.spring_layout(GLOBAL_NETWORK)
-        self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+        if result == QtGui.QDialog.Accepted:
+            n = dialog.NumberofNodes()
+            m = dialog.NumberofAddedNodes()
+            global GLOBAL_NETWORK
+            GLOBAL_NETWORK.clear()
+            GLOBAL_NETWORK = NM.directed_barabasi_albert_graph(n, m)
+            pos = nx.layout.spring_layout(GLOBAL_NETWORK)
+            self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
 
 
     def network_menu_SFNetwork_action(self):
@@ -440,6 +460,44 @@ class MainWindow(QtGui.QMainWindow):
         GLOBAL_NETWORK = nx.karate_club_graph()
         pos = nx.layout.spring_layout(GLOBAL_NETWORK)
         self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+
+    ##############################################################################
+    # 
+    # Features (degree & degree distribution, betweenness, closeness, eigenvector)
+    # 
+    ###############################################################################
+    def feature_menu_degree_action(self):
+        dialog = Dialog_CentralityDisplayResult(self)
+        col1 = []
+        col2 = []
+        global GLOBAL_NETWORK
+        for x, y in nx.degree(GLOBAL_NETWORK).iteritems():
+            col1.append(x)
+            col2.append(y)
+        dialog.add_contents('NodeID', 'Degree', col1, col2)
+        result = dialog.exec_()
+        plt.plot(x, y, '-o')
+        plt.show()
+
+    def feature_menu_clusteringcoefficient_action(self):
+        dialog = Dialog_CentralityDisplayResult(self)
+        col1 = []
+        col2 = []
+        global GLOBAL_NETWORK
+        for x, y in nx.clustering(GLOBAL_NETWORK).iteritems():
+            col1.append(x)
+            col2.append(y)
+        dialog.add_contents('NodeID', 'Clustering Coefficient', col1, col2)
+        result = dialog.exec_()
+        
+
+    def feature_menu_diameter_action(self):
+        global GLOBAL_NETWORK
+        d = nx.diameter(GLOBAL_NETWORK)
+        QtGui.QMessageBox.about(self, "Prompt", "The Network Diameter is %d" %(d))  
+
+
+
 
 
     ##################################################################
@@ -516,7 +574,12 @@ class MainWindow(QtGui.QMainWindow):
         Copyright (C) 2015 Xin-Feng Li (silfer.lee@gmail.com)
 
         This program is distributed under BSD License
-        """)        
+        """)
+        
+    def about_menu_aboutNetwork_action(self):
+        global GLOBAL_NETWORK
+        s = nx.info(GLOBAL_NETWORK)
+        QtGui.QMessageBox.about(self, "Basic Network Info", s)        
 
 if __name__ == "__main__":
     qApp = QtGui.QApplication(sys.argv)
