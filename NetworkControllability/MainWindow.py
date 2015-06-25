@@ -259,32 +259,53 @@ class MainWindow(QtGui.QMainWindow):
         self.file_menu.addAction('Quit', self.file_menu_quit_action)
         self.menuBar().addMenu(self.file_menu)
 
+        #######################################################################################
         # network menu
+        #######################################################################################
         self.network_menu = QtGui.QMenu('&Networks', self)
+
+        # regular network
         self.network_menu.addAction('Complete Network', self.network_menu_complete_graph_action)
-        self.network_menu.addAction('ER Network', self.network_menu_ERNetwork_action)
-        self.network_menu.addAction('Directed ER Network', self.directed_network_menu_ERNetwork_action)
-        self.network_menu.addSeparator()
-        self.network_menu.addAction('WS Small World', self.network_menu_WSNetwork_action)
-        self.network_menu.addAction('Directed WS Small World', self.network_menu_directed_WSNetwork_action)
-        self.network_menu.addAction('NW Small World', self.network_menu_NWNetwork_action)
-        self.network_menu.addAction('Directed NW Small World', self.network_menu_directed_NWNetwork_action)
-        self.network_menu.addSeparator()
-        self.network_menu.addAction('BA Scale Free Network', self.network_menu_BANetwork_action)
-        self.network_menu.addAction('Directed BA Scale Free Network',self.network_menu_directed_BANetwork_action)
-        self.network_menu.addAction('SF Scale Free', self.network_menu_SFNetwork_action)
-        self.network_menu.addSeparator()
-        self.network_menu.addAction('Karate Club Network', self.network_menu_karate_club_network_action)
+
+        # sub-random-network menu
+        self.network_menu_random_network_menu = QtGui.QMenu("Random Networks", self.network_menu)
+        self.network_menu.addMenu(self.network_menu_random_network_menu)
+        self.network_menu_random_network_menu.addAction('ER Network', self.network_menu_ERNetwork_action)
+        self.network_menu_random_network_menu.addAction('Directed ER Network', self.directed_network_menu_ERNetwork_action)
+       
+        # sub-small-world menu
+        self.network_menu_smallworld_menu = QtGui.QMenu("Small World Networks", self.network_menu)
+        self.network_menu.addMenu(self.network_menu_smallworld_menu)      
+        self.network_menu_smallworld_menu.addAction('WS Small World', self.network_menu_WSNetwork_action)
+        self.network_menu_smallworld_menu.addAction('Directed WS Small World', self.network_menu_directed_WSNetwork_action)
+        self.network_menu_smallworld_menu.addAction('NW Small World', self.network_menu_NWNetwork_action)
+        self.network_menu_smallworld_menu.addAction('Directed NW Small World', self.network_menu_directed_NWNetwork_action)
+        
+        # sub-scale-free menu
+        self.network_menu_scale_free_menu = QtGui.QMenu('Scale-Free Networks', self.network_menu)
+        self.network_menu.addMenu(self.network_menu_scale_free_menu)
+        self.network_menu_scale_free_menu.addAction('BA Scale Free Network', self.network_menu_BANetwork_action)
+        self.network_menu_scale_free_menu.addAction('Directed BA Scale Free Network',self.network_menu_directed_BANetwork_action)
+        self.network_menu_scale_free_menu.addAction('Parametric Scale Free Network', self.network_menu_SFNetwork_action)
+
+        # sub-real-network menu
+        self.network_menu_real_network_menu = QtGui.QMenu("Real Networks", self.network_menu)
+        self.network_menu.addMenu(self.network_menu_real_network_menu)
+        self.network_menu_real_network_menu.addAction('Karate Club Network', self.network_menu_karate_club_network_action)
         self.menuBar().addMenu(self.network_menu)
 
+        ###############################################################################################
         # Features menu
+        ###############################################################################################
         self.feature_menu = QtGui.QMenu("Features", self)
         self.feature_menu.addAction("Degree & Degree Distribution", self.feature_menu_degree_action)
         self.feature_menu.addAction("Clustering Coefficients", self.feature_menu_clusteringcoefficient_action)
         self.feature_menu.addAction("Diameter", self.feature_menu_diameter_action)
         self.menuBar().addMenu(self.feature_menu)
 
+        ###############################################################################################
         # centrality menu
+        ###############################################################################################
         self.centrality_menu = QtGui.QMenu('&Centrality', self)
         self.centrality_menu.addAction('Degree Centrality', self.centrality_menu_NodeDegree_action)
         self.centrality_menu.addAction('Betweenness Centrality', self.centrality_menu_NodeBetweenness_action)
@@ -292,7 +313,9 @@ class MainWindow(QtGui.QMainWindow):
         self.centrality_menu.addAction('Eigenvector Centrality', self.centrality_menu_EigenvectorBetweenness_action)
         self.menuBar().addMenu(self.centrality_menu)
 
+        ##############################################################################################
         # controllability menu
+        ##############################################################################################
         self.controllability_menu = QtGui.QMenu('&Controllability', self)
         self.controllability_menu.addAction('Structral Controllability', self.controllability_menu_StructralControllability_action)
         self.controllability_menu.addAction('Exact Controllability', self.controllability_menu_ExactControllability_action)
@@ -307,7 +330,9 @@ class MainWindow(QtGui.QMainWindow):
         self.menuBar().addMenu(self.robustness_menu)
 
         # Draw Menu
-        
+        self.draw_menu = QtGui.QMenu("&Draw", self)
+        self.draw_menu.addMenu("&Layout")
+        self.menuBar().addMenu(self.draw_menu)
 
         # about menu
         self.about_menu = QtGui.QMenu('&About', self)
@@ -339,9 +364,12 @@ class MainWindow(QtGui.QMainWindow):
     # 
     ##################################################################
     def network_menu_complete_graph_action(self):
-        text, ok = QtGui.QInputDialog.getText(self, 'Input Dialog', 'Node Num N:')
+        text, ok = QtGui.QInputDialog.getText(self, 'Input The Parameter', 'Node Num N:')
         if ok:
             n = int(text)
+            if n <= 0 or n >= 1000:
+                QtGui.QMessageBox.critical(self, "ERROR", "N must be an integer in (0, 1000)")
+                return
             global GLOBAL_NETWORK
             GLOBAL_NETWORK.clear()
             GLOBAL_NETWORK = nx.complete_graph(n)
@@ -355,6 +383,12 @@ class MainWindow(QtGui.QMainWindow):
         if result == QtGui.QDialog.Accepted:
             n = dialog.NumberofNodes()
             p = dialog.ConnectProbability()
+            if n <= 0 or n >= 1000:
+                QtGui.QMessageBox.critical(self, "ERROR", "N must be an integer in (0, 1000)")
+                return
+            if p <= 0.0 or p >= 1.0:
+                QtGui.QMessageBox.critical(self, "ERROR", "p must be a float number in (0.0, 1.0)")
+                return
             global GLOBAL_NETWORK
             GLOBAL_NETWORK.clear()
             GLOBAL_NETWORK = nx.erdos_renyi_graph(n, p)
@@ -367,6 +401,12 @@ class MainWindow(QtGui.QMainWindow):
         if result == QtGui.QDialog.Accepted:
             n = dialog.NumberofNodes()
             p = dialog.ConnectProbability()
+            if n <= 0 or n >= 1000:
+                QtGui.QMessageBox.critical(self, "ERROR", "N must be an integer in (0, 1000)")
+                return
+            if p <= 0.0 or p >= 1.0:
+                QtGui.QMessageBox.critical(self, "ERROR", "p must be a float number in (0.0, 1.0)")
+                return
             global GLOBAL_NETWORK
             GLOBAL_NETWORK.clear()
             GLOBAL_NETWORK = nx.erdos_renyi_graph(n, p, directed=True)
@@ -380,6 +420,15 @@ class MainWindow(QtGui.QMainWindow):
             n = dialog.NumberofNodes()
             k = dialog.NumberofNeighbors()
             p = dialog.ConnectProbability()
+            if n <= 0 or n >= 1000:
+                QtGui.QMessageBox.critical(self, "ERROR", "N must be an integer in (0, 1000)")
+                return
+            if k % 2 == 1:
+                QtGui.QMessageBox.critical(self, "ERROR", "k must be an even number & k < n")
+                return
+            if p <= 0.0 or p >= 1.0:
+                QtGui.QMessageBox.critical(self, "ERROR", "p must be a float number in (0.0, 1.0)")
+                return
             global GLOBAL_NETWORK
             GLOBAL_NETWORK.clear()
             GLOBAL_NETWORK = nx.watts_strogatz_graph(n, k, p)
@@ -393,6 +442,15 @@ class MainWindow(QtGui.QMainWindow):
             n = dialog.NumberofNodes()
             k = dialog.NumberofNeighbors()
             p = dialog.ConnectProbability()
+            if n <= 0 or n >= 1000:
+                QtGui.QMessageBox.critical(self, "ERROR", "N must be an integer in (0, 1000)")
+                return
+            if k % 2 == 1:
+                QtGui.QMessageBox.critical(self, "ERROR", "k must be an even number & k < n")
+                return
+            if p <= 0.0 or p >= 1.0:
+                QtGui.QMessageBox.critical(self, "ERROR", "p must be a float number in (0.0, 1.0)")
+                return
             global GLOBAL_NETWORK
             GLOBAL_NETWORK.clear()
             GLOBAL_NETWORK = NM.directed_watts_strogatz_graph(n,k,p)
@@ -406,6 +464,15 @@ class MainWindow(QtGui.QMainWindow):
             n = dialog.NumberofNodes()
             k = dialog.NumberofNeighbors()
             p = dialog.ConnectProbability()
+            if n <= 0 or n >= 1000:
+                QtGui.QMessageBox.critical(self, "ERROR", "N must be an integer in (0, 1000)")
+                return
+            if k % 2 == 1:
+                QtGui.QMessageBox.critical(self, "ERROR", "k must be an even number & k < n")
+                return
+            if p <= 0.0 or p >= 1.0:
+                QtGui.QMessageBox.critical(self, "ERROR", "p must be a float number in (0.0, 1.0)")
+                return
             global GLOBAL_NETWORK
             GLOBAL_NETWORK.clear()
             GLOBAL_NETWORK = nx.newman_watts_strogatz_graph(n, k, p)
@@ -419,6 +486,15 @@ class MainWindow(QtGui.QMainWindow):
             n = dialog.NumberofNodes()
             k = dialog.NumberofNeighbors()
             p = dialog.ConnectProbability()
+            if n <= 0 or n >= 1000:
+                QtGui.QMessageBox.critical(self, "ERROR", "N must be an integer in (0, 1000)")
+                return
+            if k % 2 == 1:
+                QtGui.QMessageBox.critical(self, "ERROR", "k must be an even number & k < n")
+                return
+            if p <= 0.0 or p >= 1.0:
+                QtGui.QMessageBox.critical(self, "ERROR", "p must be a float number in (0.0, 1.0)")
+                return
             global GLOBAL_NETWORK
             GLOBAL_NETWORK.clear()
             GLOBAL_NETWORK = NM.directed_newman_watts_strogatz_graph(n,k,p)
@@ -432,6 +508,12 @@ class MainWindow(QtGui.QMainWindow):
         if result == QtGui.QDialog.Accepted:
             n = dialog.NumberofNodes()
             m = dialog.NumberofAddedNodes()
+            if n <= 0 or n >= 1000:
+                QtGui.QMessageBox.critical(self, "ERROR", "N must be an integer in (0, 1000)")
+                return
+            if m > n:
+                QtGui.QMessageBox.critical(self, "ERROR", "added nodes must has m < n")
+                return
             global GLOBAL_NETWORK
             GLOBAL_NETWORK.clear()
             GLOBAL_NETWORK = nx.barabasi_albert_graph(n, m)
@@ -444,6 +526,12 @@ class MainWindow(QtGui.QMainWindow):
         if result == QtGui.QDialog.Accepted:
             n = dialog.NumberofNodes()
             m = dialog.NumberofAddedNodes()
+            if n <= 0 or n >= 1000:
+                QtGui.QMessageBox.critical(self, "ERROR", "N must be an integer in (0, 1000)")
+                return
+            if m > n:
+                QtGui.QMessageBox.critical(self, "ERROR", "added nodes must has m < n")
+                return
             global GLOBAL_NETWORK
             GLOBAL_NETWORK.clear()
             GLOBAL_NETWORK = NM.directed_barabasi_albert_graph(n, m)
