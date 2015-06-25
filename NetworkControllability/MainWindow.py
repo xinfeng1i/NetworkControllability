@@ -321,7 +321,9 @@ class MainWindow(QtGui.QMainWindow):
         self.controllability_menu.addAction('Exact Controllability', self.controllability_menu_ExactControllability_action)
         self.menuBar().addMenu(self.controllability_menu)
 
+        ###############################################################################################
         # Robustness menu
+        ###############################################################################################
         self.robustness_menu = QtGui.QMenu('&Robustness', self)
         self.robustness_menu.addAction('Random Attack', self.robustness_menu_RondomAttack_action)
         self.robustness_menu.addAction('Recalculated Max-Degree Attack', self.robustness_menu_RecaculatedMaxDegree_action)
@@ -329,10 +331,20 @@ class MainWindow(QtGui.QMainWindow):
         self.robustness_menu.addAction('Cascaded Attack based on Node-Capacity', self.robustness_menu_CascadeBasedonNodeCapacity_action)
         self.menuBar().addMenu(self.robustness_menu)
 
+        ##############################################################################################
         # Draw Menu
+        ##############################################################################################
         self.draw_menu = QtGui.QMenu("&Draw", self)
-        self.draw_menu.addMenu("&Layout")
+        self.draw_menu_layout_submenu = QtGui.QMenu("Layouts", self.draw_menu)
+        self.draw_menu.addMenu(self.draw_menu_layout_submenu)
+        self.draw_menu_layout_submenu.addAction("Circle Layout", self.draw_menu_circleLayout_action)
+        self.draw_menu_layout_submenu.addAction("Random Layout", self.draw_menu_randomLayout_action)
+        self.draw_menu_layout_submenu.addAction("Shell Layout", self.draw_menu_shellLayout_action)
+        self.draw_menu_layout_submenu.addAction("Spring Layout", self.draw_menu_springLayout_action)
+        self.draw_menu_layout_submenu.addAction("Spectral Layout", self.draw_menu_spectralLayout_action)
+
         self.menuBar().addMenu(self.draw_menu)
+
 
         # about menu
         self.about_menu = QtGui.QMenu('&About', self)
@@ -653,6 +665,36 @@ class MainWindow(QtGui.QMainWindow):
     def robustness_menu_CascadeBasedonNodeCapacity_action(self):
         pass
 
+
+    ##################################################################
+    # 
+    # Draw Actions (Layout)
+    # 
+    ##################################################################
+    def draw_menu_circleLayout_action(self):
+        global GLOBAL_NETWORK
+        pos = nx.layout.circular_layout(GLOBAL_NETWORK)
+        self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+        
+    def draw_menu_randomLayout_action(self):
+        global GLOBAL_NETWORK
+        pos = nx.layout.random_layout(GLOBAL_NETWORK)
+        self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+
+    def draw_menu_shellLayout_action(self):
+        global GLOBAL_NETWORK
+        pos = nx.layout.shell_layout(GLOBAL_NETWORK)
+        self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+
+    def draw_menu_springLayout_action(self):
+        global GLOBAL_NETWORK
+        pos = nx.layout.spring_layout(GLOBAL_NETWORK)
+        self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+
+    def draw_menu_spectralLayout_action(self):
+        global GLOBAL_NETWORK
+        pos = nx.layout.spectral_layout(GLOBAL_NETWORK)
+        self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
 
     def about_menu_About_action(self):
         QtGui.QMessageBox.about(self, "About",
