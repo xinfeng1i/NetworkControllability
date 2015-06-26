@@ -262,8 +262,10 @@ class MainWindow(QtGui.QMainWindow):
         self.file_menu.addMenu(self.file_menu_open_submenu)
         self.file_menu.addMenu(self.file_menu_save_submenu)
         self.file_menu.addAction("Quit", self.file_menu_quit_action)
-        self.file_menu_open_submenu.addAction("Pajek Net (.net)", self.file_menu_open_pajeknetwork_action)
+        self.file_menu_open_submenu.addAction("Pajek File (.net)", self.file_menu_open_pajeknetwork_action)
+        self.file_menu_open_submenu.addAction("Graphviz File (.dot)", self.file_menu_open_dotNetwork_action)
         self.file_menu_save_submenu.addAction("Pajek Net (.net)", self.file_menu_save_pajeknetwork_action)
+        self.file_menu_save_submenu.addAction("Graphviz File (.dot)", self.file_menu_save_dotNetwork_action)
 
         self.menuBar().addMenu(self.file_menu)
 
@@ -377,6 +379,8 @@ class MainWindow(QtGui.QMainWindow):
     # File Menu Actions
     # 
     ##################################################################
+    
+    # open pajek
     def file_menu_open_pajeknetwork_action(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, "Open Pajek (.net) file", "./Nets", "Pajek Files (*.net)")
         filename = str(filename.toUtf8())
@@ -394,7 +398,7 @@ class MainWindow(QtGui.QMainWindow):
         else:
             return
 
-
+    # save pajek
     def file_menu_save_pajeknetwork_action(self):
         # valid check, empty network no needed to be saved
         global GLOBAL_NETWORK
@@ -403,6 +407,26 @@ class MainWindow(QtGui.QMainWindow):
             return
         # save files
         filename = QtGui.QFileDialog.getSaveFileName(self, "Save as...", "./Nets", "Pajek Files (*.net)")
+        filename = str(filename.toUtf8())
+        if filename:
+            nx.write_pajek(GLOBAL_NETWORK, filename)
+            QtGui.QMessageBox.information(self, "title", "Save Net Files Successfully !")
+        else:
+            pass
+    
+    # open graphviz net
+    def file_menu_open_dotNetwork_action(self):
+        QtGui.QMessageBox.information(self, "Info", "Developing..., will come back soon")
+    
+    # save graphviz net
+    def file_menu_save_dotNetwork_action(self):
+        # valid check, empty network no needed to be saved
+        global GLOBAL_NETWORK
+        if (not GLOBAL_NETWORK.nodes()) and (not GLOBAL_NETWORK.edges()):
+            QtGui.QMessageBox.warning(self, "Warning", "There is no Networks to Save !")
+            return
+        # save files
+        filename = QtGui.QFileDialog.getSaveFileName(self, "Save as...", "./Nets", "Graphviz Files (*.dot)")
         filename = str(filename.toUtf8())
         if filename:
             nx.write_pajek(GLOBAL_NETWORK, filename)
