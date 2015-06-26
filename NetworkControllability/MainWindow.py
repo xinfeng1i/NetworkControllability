@@ -180,7 +180,7 @@ class Dialog_CentralityDisplayResult(QtGui.QDialog):
         self.edit.append(label1+'\t'+label2)
         n = len(data_col1)
         for i in range(n):
-            self.edit.append("%d\t%f"%(data_col1[i], data_col2[i]))
+            self.edit.append("%s\t%f"%(data_col1[i], data_col2[i]))
 
 
 class MyMplCanvas(FigureCanvas):
@@ -253,10 +253,18 @@ class MainWindow(QtGui.QMainWindow):
         self.setWindowTitle('Network Controllability Analysis Software')
         self.resize(1000, 800)
         
+        #######################################################################################
         # file menu
+        #######################################################################################
         self.file_menu = QtGui.QMenu('&File', self)
-        self.file_menu.addAction('Open', self.file_menu_open_action)
-        self.file_menu.addAction('Quit', self.file_menu_quit_action)
+        self.file_menu_open_submenu = QtGui.QMenu("Open")
+        self.file_menu_save_submenu = QtGui.QMenu("Save Net As")
+        self.file_menu.addMenu(self.file_menu_open_submenu)
+        self.file_menu.addMenu(self.file_menu_save_submenu)
+        self.file_menu.addAction("Quit", self.file_menu_quit_action)
+        self.file_menu_open_submenu.addAction("Pajek Net (.net)", self.file_menu_open_pajeknetwork_action)
+        self.file_menu_save_submenu.addAction("Pajek Net (.net)", self.file_menu_save_pajeknetwork_action)
+
         self.menuBar().addMenu(self.file_menu)
 
         #######################################################################################
@@ -364,15 +372,50 @@ class MainWindow(QtGui.QMainWindow):
         pos=nx.spring_layout(G)
         self.main_widget.update_centralWidget(G, pos)
    
-    def file_menu_open_action(self):
-        pass
+    ##################################################################
+    # 
+    # File Menu Actions
+    # 
+    ##################################################################
+    def file_menu_open_pajeknetwork_action(self):
+        filename = QtGui.QFileDialog.getOpenFileName(self, "Open Pajek (.net) file", "./Nets", "Pajek Files (*.net)")
+        filename = str(filename.toUtf8())
+        if filename:            
+            global GLOBAL_NETWORK
+            GLOBAL_NETWORK.clear()
+            GLOBAL_NETWORK = nx.read_pajek(filename)
+            if GLOBAL_NETWORK.is_multigraph():
+                if GLOBAL_NETWORK.is_directed():
+                    GLOBAL_NETWORK = nx.DiGraph(GLOBAL_NETWORK)
+                else:
+                    GLOBAL_NETWORK = nx.Graph(GLOBAL_NETWORK)
+            pos = nx.layout.circular_layout(GLOBAL_NETWORK)
+            self.main_widget.update_centralWidget(GLOBAL_NETWORK, pos)
+        else:
+            return
+
+
+    def file_menu_save_pajeknetwork_action(self):
+        # valid check, empty network no needed to be saved
+        global GLOBAL_NETWORK
+        if (not GLOBAL_NETWORK.nodes()) and (not GLOBAL_NETWORK.edges()):
+            QtGui.QMessageBox.warning(self, "Warning", "There is no Networks to Save !")
+            return
+        # save files
+        filename = QtGui.QFileDialog.getSaveFileName(self, "Save as...", "./Nets", "Pajek Files (*.net)")
+        filename = str(filename.toUtf8())
+        if filename:
+            nx.write_pajek(GLOBAL_NETWORK, filename)
+            QtGui.QMessageBox.information(self, "title", "Save Net Files Successfully !")
+        else:
+            pass
 
     def file_menu_quit_action(self):
         QtGui.qApp.exit()
 
     ##################################################################
     # 
-    # Network Models Definitions
+    # Network Models Actions
     # 
     ##################################################################
     def network_menu_complete_graph_action(self):
@@ -602,7 +645,7 @@ class MainWindow(QtGui.QMainWindow):
 
     ##################################################################
     # 
-    # Centrality (degree, betweenness, closeness, eigenvector)
+    # Centrality (degree, betweenness, closeness, eigenvector) Actions
     # 
     ##################################################################
 
