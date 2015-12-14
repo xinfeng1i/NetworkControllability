@@ -8,6 +8,7 @@ import copy
 import subprocess, os
 import time
 import UtilityFunctions as UF
+import math;
 
 def directed_watts_strogatz_graph(n, k, p):
     G = nx.watts_strogatz_graph(n, k, p)
@@ -46,39 +47,43 @@ def directed_barabasi_albert_graph(n, m):
             DG.add_edge(v, u)
     return DG
 
+def undirected_scale_free_network(n, average_degree, exp):
+    """ Return a undirected scale free network with average degree and
+    degree exponent adjustable
+    The network is generated from the static model.
+    """
+    if exp == 1.0:
+        print "ERROR: The degree exponent cannot equals 1.0 !!!";
+        return;
+    k = average_degree;
+    r = math.fabs(exp);
+    alpha = 1.0 / (r - 1.0);
 
-#def SelfSimilarityGrowingTreeNetwork(iteration_times):
-#    # initialize
-#    G = nx.Graph()
-#    G.add_node(0)
-#    G.add_node(1)
-#    G.add_edge(0, 1)
-    
-#    added_edge = set()
-#    added_edge.add((0, 1))
+    G = nx.Graph()
+    nodes = range(n);
+    G.add_nodes_from(nodes);
 
-#    cur_iteration_times = 0
-#    while cur_iteration_times < iteration_times:
-#        new_added_edge = set()
-#        for (u, v) in added_edge:         
-#            n = G.number_of_nodes()
-#            # add middle nodes
-#            G.add_node(n)
-#            G.add_node(n+1)
-#            G.add_node(n+2)
-#            G.remove_edge(u, v)
-#            G.add_edge(u, n)
-#            G.add_edge(v, n)
-#            # add new branch nodes and edges
-#            G.add_edge(n, n+1)
-#            G.add_edge(n, n+2)
-#            # update new added edge
-#            new_added_edge.add((n, n+1))
-#            new_added_edge.add((n, n+2))
-#        added_edge = set()
-#        added_edge = new_added_edge
-#        cur_iteration_times += 1
-#    return G 
+    weight = [math.pow(i+1, -alpha) for i in nodes]
+    tot_weight = sum(weight)
+    weight = [(x+0.0) / tot_weight for x in weight]
+    accu_weight = [sum(weight[0:i+1]) for i in range(n)]
+    nedges = 0;
+    totedges = (k+0.0) * n / 2.0;
+    while nedges < totedges:
+        r1 = random.random();
+        for nodei in range(n):
+            if accu_weight[nodei] > r1:
+                break;
+        r2 = random.random();
+        for nodej in range(n):
+            if accu_weight[nodej] > r2:
+                break;
+        if nodei != nodej and (not G.has_edge(nodei, nodej)):
+            G.add_edge(nodei, nodej)
+            nedges += 1;
+    return G;
+
+
 
 
 if __name__ == "__main__":
@@ -89,5 +94,6 @@ if __name__ == "__main__":
 
     #DG = directed_watts_strogatz_graph(20, 4, 0.2)
     #DG = directed_newman_watts_strogatz_graph(20, 4, 0.2)
-    DG = directed_barabasi_albert_graph(20, 2)
-    eigenvector_dict = nx.eigenvector_centrality(DG, max_iter=1000)
+    #DG = directed_barabasi_albert_graph(20, 2)
+    #eigenvector_dict = nx.eigenvector_centrality(DG, max_iter=1000)
+    G = undirected_scale_free_network(100, 6.0, 4.0);

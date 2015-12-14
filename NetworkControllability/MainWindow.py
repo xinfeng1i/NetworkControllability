@@ -167,6 +167,7 @@ class Dialog_CentralityDisplayResult(QtGui.QDialog):
         buttonBox = QtGui.QDialogButtonBox(parent=self)
         buttonBox.setOrientation(QtCore.Qt.Horizontal)
         buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        #buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Save | QtGui.QDialogButtonBox.Close)
         buttonBox.accepted.connect(self.accept)
         buttonBox.rejected.connect(self.reject)
 
@@ -180,7 +181,7 @@ class Dialog_CentralityDisplayResult(QtGui.QDialog):
         self.edit.append(label1+'\t'+label2)
         n = len(data_col1)
         for i in range(n):
-            self.edit.append("%s\t%f"%(data_col1[i], data_col2[i]))
+            self.edit.append("%s %f"%(data_col1[i], data_col2[i]))
 
 
 class MyMplCanvas(FigureCanvas):
@@ -308,7 +309,7 @@ class MainWindow(QtGui.QMainWindow):
         # Features menu
         ###############################################################################################
         self.feature_menu = QtGui.QMenu("Features", self)
-        self.feature_menu.addAction("Degree & Degree Distribution", self.feature_menu_degree_action)
+        self.feature_menu.addAction("Degree Distribution", self.feature_menu_degree_action)
         self.feature_menu.addAction("Clustering Coefficients", self.feature_menu_clusteringcoefficient_action)
         self.feature_menu.addAction("Diameter", self.feature_menu_diameter_action)
         self.menuBar().addMenu(self.feature_menu)
@@ -635,6 +636,7 @@ class MainWindow(QtGui.QMainWindow):
     ###############################################################################
     def feature_menu_degree_action(self):
         dialog = Dialog_CentralityDisplayResult(self)
+        dialog.setWindowTitle('degree distribution')
         col1 = []
         col2 = []
         global GLOBAL_NETWORK
@@ -643,11 +645,20 @@ class MainWindow(QtGui.QMainWindow):
             col2.append(y)
         dialog.add_contents('NodeID', 'Degree', col1, col2)
         result = dialog.exec_()
-        plt.plot(x, y, '-o')
-        plt.show()
+        if result == QtGui.QDialog.Accepted:
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save file to', './results/features/', "Text Files (*.txt)")
+            if fname:
+                with open(fname, 'w') as fp:
+                    print >> fp, 'NodeId Degree'
+                    for i in range(len(col1)):
+                        print >> fp, '%s %d'%(col1[i], col2[i])
+                QtGui.QMessageBox.information(self, 'Message', 'Save Successfully !')
+        else:
+            pass
 
     def feature_menu_clusteringcoefficient_action(self):
         dialog = Dialog_CentralityDisplayResult(self)
+        dialog.setWindowTitle('clustering coefficient distribution')
         col1 = []
         col2 = []
         global GLOBAL_NETWORK
@@ -656,6 +667,16 @@ class MainWindow(QtGui.QMainWindow):
             col2.append(y)
         dialog.add_contents('NodeID', 'Clustering Coefficient', col1, col2)
         result = dialog.exec_()
+        if result == QtGui.QDialog.Accepted:
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save file to', './results/features/', "Text Files (*.txt)")
+            if fname:
+                with open(fname, 'w') as fp:
+                    print >> fp, 'NodeId ClusteringCoefficient'
+                    for i in range(len(col1)):
+                        print >> fp, '%s %f'%(col1[i], col2[i])
+                QtGui.QMessageBox.information(self, 'Message', 'Save Successfully !')
+        else:
+            pass
         
 
     def feature_menu_diameter_action(self):
