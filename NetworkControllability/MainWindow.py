@@ -164,15 +164,20 @@ class Dialog_CentralityDisplayResult(QtGui.QDialog):
         grid = QtGui.QGridLayout()
         
         self.edit = QtGui.QTextEdit(self)
-        buttonBox = QtGui.QDialogButtonBox(parent=self)
-        buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
-        #buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Save | QtGui.QDialogButtonBox.Close)
-        buttonBox.accepted.connect(self.accept)
-        buttonBox.rejected.connect(self.reject)
+        self.buttonBox = QtGui.QDialogButtonBox(parent=self)
+        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
 
+        btn = QtGui.QPushButton('Plot')
+        self.buttonBox.addButton(btn, QtGui.QDialogButtonBox.ActionRole)
+        QtCore.QObject.connect(btn, QtCore.SIGNAL("clicked()"), self.plot_function)
+        self.column1 = []
+        self.column2 = []
+        
         grid.addWidget(self.edit, 0, 0, 1, 1)
-        grid.addWidget(buttonBox, 1, 0, 1, 1)
+        grid.addWidget(self.buttonBox, 1, 0, 1, 1)
 
         layout = QtGui.QVBoxLayout()
         layout.addLayout(grid)
@@ -182,6 +187,9 @@ class Dialog_CentralityDisplayResult(QtGui.QDialog):
         n = len(data_col1)
         for i in range(n):
             self.edit.append("%s %f"%(data_col1[i], data_col2[i]))
+    def plot_function(self):
+        plt.plot(self.column1, self.column2, '-bo')
+        plt.show()
 
 
 class MyMplCanvas(FigureCanvas):
@@ -637,12 +645,16 @@ class MainWindow(QtGui.QMainWindow):
     def feature_menu_degree_action(self):
         dialog = Dialog_CentralityDisplayResult(self)
         dialog.setWindowTitle('degree distribution')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Ok).setText('Save')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Cancel).setText('Close')
         col1 = []
         col2 = []
         global GLOBAL_NETWORK
         for x, y in nx.degree(GLOBAL_NETWORK).iteritems():
             col1.append(x)
             col2.append(y)
+        dialog.column1 = col1
+        dialog.column2 = col2
         dialog.add_contents('NodeID', 'Degree', col1, col2)
         result = dialog.exec_()
         if result == QtGui.QDialog.Accepted:
@@ -659,12 +671,16 @@ class MainWindow(QtGui.QMainWindow):
     def feature_menu_clusteringcoefficient_action(self):
         dialog = Dialog_CentralityDisplayResult(self)
         dialog.setWindowTitle('clustering coefficient distribution')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Ok).setText('Save')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Cancel).setText('Close')
         col1 = []
         col2 = []
         global GLOBAL_NETWORK
         for x, y in nx.clustering(GLOBAL_NETWORK).iteritems():
             col1.append(x)
             col2.append(y)
+        dialog.column1 = col1
+        dialog.column2 = col2
         dialog.add_contents('NodeID', 'Clustering Coefficient', col1, col2)
         result = dialog.exec_()
         if result == QtGui.QDialog.Accepted:
@@ -696,47 +712,110 @@ class MainWindow(QtGui.QMainWindow):
 
     def centrality_menu_NodeDegree_action(self):
         dialog = Dialog_CentralityDisplayResult(self)
+        dialog.setWindowTitle('node degree centrality')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Ok).setText('Save')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Cancel).setText('Close')
         col1 = []
         col2 = []
         global GLOBAL_NETWORK
         for x, y in nx.degree_centrality(GLOBAL_NETWORK).iteritems():
             col1.append(x)
             col2.append(y)
-        dialog.add_contents('NodeID', 'Degree Centrality', col1, col2)
+        dialog.column1 = col1
+        dialog.column2 = col2
+        dialog.add_contents('NodeID', 'Degree Centrality', col1, col2)        
         result = dialog.exec_()
+        if result == QtGui.QDialog.Accepted:
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save file to', './results/centrality/', "Text Files (*.txt)")
+            if fname:
+                with open(fname, 'w') as fp:
+                    print >> fp, 'NodeId DegreeCentrality'
+                    for i in range(len(col1)):
+                        print >> fp, '%s %f'%(col1[i], col2[i])
+                QtGui.QMessageBox.information(self, 'Message', 'Save Successfully !')
+        else:
+            pass
+
 
     def centrality_menu_NodeBetweenness_action(self):
         dialog = Dialog_CentralityDisplayResult(self)
+        dialog.setWindowTitle('node betweenness centrality')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Ok).setText('Save')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Cancel).setText('Close')
         col1 = []
         col2 = []
         global GLOBAL_NETWORK
         for x, y in nx.betweenness_centrality(GLOBAL_NETWORK).iteritems():
             col1.append(x)
             col2.append(y)
+        dialog.column1 = col1
+        dialog.column2 = col2
         dialog.add_contents('NodeID', 'Betweenness Centrality', col1, col2)
         result = dialog.exec_()
+        if result == QtGui.QDialog.Accepted:
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save file to', './results/centrality/', "Text Files (*.txt)")
+            if fname:
+                with open(fname, 'w') as fp:
+                    print >> fp, 'NodeId BetweennessCentrality'
+                    for i in range(len(col1)):
+                        print >> fp, '%s %f'%(col1[i], col2[i])
+                QtGui.QMessageBox.information(self, 'Message', 'Save Successfully !')
+        else:
+            pass
+
 
     def centrality_menu_ClosenessBetweenness_action(self):
         dialog = Dialog_CentralityDisplayResult(self)
+        dialog.setWindowTitle('node closeness centrality')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Ok).setText('Save')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Cancel).setText('Close')
         col1 = []
         col2 = []
+        dialog.column1 = col1
+        dialog.column2 = col2
         global GLOBAL_NETWORK
         for x, y in nx.closeness_centrality(GLOBAL_NETWORK).iteritems():
             col1.append(x)
             col2.append(y)
         dialog.add_contents('NodeID', 'Closeness Centrality', col1, col2)
         result = dialog.exec_()
+        if result == QtGui.QDialog.Accepted:
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save file to', './results/centrality/', "Text Files (*.txt)")
+            if fname:
+                with open(fname, 'w') as fp:
+                    print >> fp, 'NodeId ClosenessCentrality'
+                    for i in range(len(col1)):
+                        print >> fp, '%s %f'%(col1[i], col2[i])
+                QtGui.QMessageBox.information(self, 'Message', 'Save Successfully !')
+        else:
+            pass
+
 
     def centrality_menu_EigenvectorBetweenness_action(self):
         dialog = Dialog_CentralityDisplayResult(self)
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Ok).setText('Save')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Cancel).setText('Close')
+        dialog.setWindowTitle('node eigenvector centrality')
         col1 = []
         col2 = []
         global GLOBAL_NETWORK
         for x, y in nx.eigenvector_centrality(GLOBAL_NETWORK).iteritems():
             col1.append(x)
             col2.append(y)
+        dialog.column1 = col1
+        dialog.column2 = col2
         dialog.add_contents('NodeID', 'Eigenvector Centrality', col1, col2)
         result = dialog.exec_()
+        if result == QtGui.QDialog.Accepted:
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save file to', './results/centrality/', "Text Files (*.txt)")
+            if fname:
+                with open(fname, 'w') as fp:
+                    print >> fp, 'NodeId EigenvectorCentrality'
+                    for i in range(len(col1)):
+                        print >> fp, '%s %f'%(col1[i], col2[i])
+                QtGui.QMessageBox.information(self, 'Message', 'Save Successfully !')
+        else:
+            pass
 
 
     def controllability_menu_StructralControllability_action(self):
