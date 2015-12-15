@@ -186,9 +186,46 @@ class Dialog_CentralityDisplayResult(QtGui.QDialog):
         self.edit.append(label1+'\t'+label2)
         n = len(data_col1)
         for i in range(n):
-            self.edit.append("%s %f"%(data_col1[i], data_col2[i]))
+            self.edit.append("%s\t%f"%(data_col1[i], data_col2[i]))
     def plot_function(self):
         plt.plot(self.column1, self.column2, '-bo')
+        plt.show()
+
+class Dialog_EdgeBetCentralityDisplayResult(QtGui.QDialog):
+    def __init__(self, parent=None, name='title'):
+        super(Dialog_EdgeBetCentralityDisplayResult, self).__init__(parent)
+        self.resize(400, 500)
+
+        grid = QtGui.QGridLayout()
+        
+        self.edit = QtGui.QTextEdit(self)
+        self.buttonBox = QtGui.QDialogButtonBox(parent=self)
+        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        btn = QtGui.QPushButton('Plot')
+        self.buttonBox.addButton(btn, QtGui.QDialogButtonBox.ActionRole)
+        QtCore.QObject.connect(btn, QtCore.SIGNAL("clicked()"), self.plot_function)
+        self.column1 = []
+        self.column2 = []
+        
+        grid.addWidget(self.edit, 0, 0, 1, 1)
+        grid.addWidget(self.buttonBox, 1, 0, 1, 1)
+
+        layout = QtGui.QVBoxLayout()
+        layout.addLayout(grid)
+        self.setLayout(layout)
+    def add_contents(self, label1, label2, data_col1, data_col2):
+        self.edit.append(label1+'\t'+label2)
+        n = len(data_col1)
+        for i in range(n):
+            self.edit.append("%s-%s\t%f"%(data_col1[i][0], data_col1[i][1], data_col2[i]))
+    def plot_function(self):
+        sz = len(self.column2)
+        x = range(sz)
+        plt.plot(x, self.column2, '-bo')
         plt.show()
 
 
@@ -328,8 +365,16 @@ class MainWindow(QtGui.QMainWindow):
         self.centrality_menu = QtGui.QMenu('&Centrality', self)
         self.centrality_menu.addAction('Degree Centrality', self.centrality_menu_NodeDegree_action)
         self.centrality_menu.addAction('Betweenness Centrality', self.centrality_menu_NodeBetweenness_action)
+        self.centrality_menu.addAction('Edge Betweenness Centrality', self.centrality_menu_EdgeBetweenness_action)
         self.centrality_menu.addAction('Closeness Centrality', self.centrality_menu_ClosenessBetweenness_action)
         self.centrality_menu.addAction('Eigenvector Centrality', self.centrality_menu_EigenvectorBetweenness_action)
+        self.centrality_menu.addSeparator()
+        self.centrality_menu.addAction('Current-flow Betweenness Centrality', self.centrality_menu_CurrentFlowBetweennessCentrality_action)
+        self.centrality_menu.addAction('Current-flow Closeness Centrality', self.centrality_menu_CurrentFlowClosenessCentrality_action)
+        self.centrality_menu.addSeparator()
+        self.centrality_menu.addAction('Katz Centrality', self.centrality_menu_KatzCentrality_action)
+        self.centrality_menu.addSeparator()
+        self.centrality_menu.addAction('Load Centrality', self.centrality_menu_LoadCentrality_action)
         self.menuBar().addMenu(self.centrality_menu)
 
         ##############################################################################################
@@ -763,6 +808,32 @@ class MainWindow(QtGui.QMainWindow):
         else:
             pass
 
+    def centrality_menu_EdgeBetweenness_action(self):
+        dialog = Dialog_EdgeBetCentralityDisplayResult(self)
+        dialog.setWindowTitle('edge betweenness centrality')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Ok).setText('Save')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Cancel).setText('Close')
+        col1 = []
+        col2 = []
+        global GLOBAL_NETWORK
+        for (u, v), y in nx.edge_betweenness_centrality(GLOBAL_NETWORK).iteritems():
+            col1.append((u, v))
+            col2.append(y)
+        dialog.column1 = col1
+        dialog.column2 = col2
+        dialog.add_contents('edge', 'edge betweenness centrality', col1, col2)
+        result = dialog.exec_()
+        if result == QtGui.QDialog.Accepted:
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save file to', './results/centrality/', "Text Files (*.txt)")
+            if fname:
+                with open(fname, 'w') as fp:
+                    print >> fp, 'Edge EdgeBetweennessCentrality'
+                    for i in range(len(col1)):
+                        print >> fp, '%s-%s %f'%(col1[i][0],col1[i][1], col2[i])
+                QtGui.QMessageBox.information(self, 'Message', 'Save Successfully !')
+        else:
+            pass
+
 
     def centrality_menu_ClosenessBetweenness_action(self):
         dialog = Dialog_CentralityDisplayResult(self)
@@ -811,6 +882,110 @@ class MainWindow(QtGui.QMainWindow):
             if fname:
                 with open(fname, 'w') as fp:
                     print >> fp, 'NodeId EigenvectorCentrality'
+                    for i in range(len(col1)):
+                        print >> fp, '%s %f'%(col1[i], col2[i])
+                QtGui.QMessageBox.information(self, 'Message', 'Save Successfully !')
+        else:
+            pass
+
+    def centrality_menu_CurrentFlowBetweennessCentrality_action(self):
+        dialog = Dialog_CentralityDisplayResult(self)
+        dialog.setWindowTitle('node current-flow betweenness centrality')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Ok).setText('Save')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Cancel).setText('Close')
+        col1 = []
+        col2 = []
+        dialog.column1 = col1
+        dialog.column2 = col2
+        global GLOBAL_NETWORK
+        for x, y in nx.current_flow_betweenness_centrality(GLOBAL_NETWORK).iteritems():
+            col1.append(x)
+            col2.append(y)
+        dialog.add_contents('NodeID', 'Current-flow Betweenness Centrality', col1, col2)
+        result = dialog.exec_()
+        if result == QtGui.QDialog.Accepted:
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save file to', './results/centrality/', "Text Files (*.txt)")
+            if fname:
+                with open(fname, 'w') as fp:
+                    print >> fp, 'NodeId CurrentFlowBetweennessCentrality'
+                    for i in range(len(col1)):
+                        print >> fp, '%s %f'%(col1[i], col2[i])
+                QtGui.QMessageBox.information(self, 'Message', 'Save Successfully !')
+        else:
+            pass
+
+    def centrality_menu_CurrentFlowClosenessCentrality_action(self):
+        dialog = Dialog_CentralityDisplayResult(self)
+        dialog.setWindowTitle('node current-flow closeness centrality')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Ok).setText('Save')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Cancel).setText('Close')
+        col1 = []
+        col2 = []
+        dialog.column1 = col1
+        dialog.column2 = col2
+        global GLOBAL_NETWORK
+        for x, y in nx.current_flow_closeness_centrality(GLOBAL_NETWORK).iteritems():
+            col1.append(x)
+            col2.append(y)
+        dialog.add_contents('NodeID', 'Current-flow Closeness Centrality', col1, col2)
+        result = dialog.exec_()
+        if result == QtGui.QDialog.Accepted:
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save file to', './results/centrality/', "Text Files (*.txt)")
+            if fname:
+                with open(fname, 'w') as fp:
+                    print >> fp, 'NodeId CurrentFlowClosenessCentrality'
+                    for i in range(len(col1)):
+                        print >> fp, '%s %f'%(col1[i], col2[i])
+                QtGui.QMessageBox.information(self, 'Message', 'Save Successfully !')
+        else:
+            pass
+
+    def centrality_menu_KatzCentrality_action(self):
+        dialog = Dialog_CentralityDisplayResult(self)
+        dialog.setWindowTitle('katz centrality')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Ok).setText('Save')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Cancel).setText('Close')
+        col1 = []
+        col2 = []
+        dialog.column1 = col1
+        dialog.column2 = col2
+        global GLOBAL_NETWORK
+        for x, y in nx.katz.katz_centrality(GLOBAL_NETWORK).iteritems():
+            col1.append(x)
+            col2.append(y)
+        dialog.add_contents('NodeID', 'Katz Centrality', col1, col2)
+        result = dialog.exec_()
+        if result == QtGui.QDialog.Accepted:
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save file to', './results/centrality/', "Text Files (*.txt)")
+            if fname:
+                with open(fname, 'w') as fp:
+                    print >> fp, 'NodeId KatzCentrality'
+                    for i in range(len(col1)):
+                        print >> fp, '%s %f'%(col1[i], col2[i])
+                QtGui.QMessageBox.information(self, 'Message', 'Save Successfully !')
+        else:
+            pass
+    
+    def centrality_menu_LoadCentrality_action(self):
+        dialog = Dialog_CentralityDisplayResult(self)
+        dialog.setWindowTitle('load centrality')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Ok).setText('Save')
+        dialog.buttonBox.button(QtGui.QDialogButtonBox.Cancel).setText('Close')
+        col1 = []
+        col2 = []
+        dialog.column1 = col1
+        dialog.column2 = col2
+        global GLOBAL_NETWORK
+        for x, y in nx.load_centrality(GLOBAL_NETWORK).iteritems():
+            col1.append(x)
+            col2.append(y)
+        dialog.add_contents('NodeID', 'Load Centrality', col1, col2)
+        result = dialog.exec_()
+        if result == QtGui.QDialog.Accepted:
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save file to', './results/centrality/', "Text Files (*.txt)")
+            if fname:
+                with open(fname, 'w') as fp:
+                    print >> fp, 'NodeId LoadCentrality'
                     for i in range(len(col1)):
                         print >> fp, '%s %f'%(col1[i], col2[i])
                 QtGui.QMessageBox.information(self, 'Message', 'Save Successfully !')
