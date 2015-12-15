@@ -7,6 +7,7 @@ import networkx as nx
 import random
 import sys
 import NetworkModels as NM
+import strutral_controllability as LBSC # short for Liu & Barabasi Structural Controllability
 
 GLOBAL_NETWORK = nx.Graph()
 
@@ -227,6 +228,37 @@ class Dialog_EdgeBetCentralityDisplayResult(QtGui.QDialog):
         x = range(sz)
         plt.plot(x, self.column2, '-bo')
         plt.show()
+
+class Dialog_DriverNodes(QtGui.QDialog):
+    def __init__(self, parent=None):
+        super(Dialog_DriverNodes, self).__init__(parent)
+        self.resize(400, 500)
+
+        self.drivers = []  # driver nodes
+        self.number_of_drivers = None  # number of driver nodes
+        self.density_of_drivers = None  # density of driver nodes (N_D/N)
+
+        grid = QtGui.QGridLayout()       
+        self.edit = QtGui.QTextEdit(self)
+        self.buttonBox = QtGui.QDialogButtonBox(parent=self)
+        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        self.buttonBox.button(QtGui.QDialogButtonBox.Ok).setText('Save')
+        self.buttonBox.button(QtGui.QDialogButtonBox.Cancel).setText('Close')
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)       
+        grid.addWidget(self.edit, 0, 0, 1, 1)
+        grid.addWidget(self.buttonBox, 1, 0, 1, 1)
+        layout = QtGui.QVBoxLayout()
+        layout.addLayout(grid)
+        self.setLayout(layout)
+    def add_contents(self, driverNodes):
+        self.drivers = driverNodes
+        self.number_of_drivers = len(driverNodes)
+        self.edit.append('%d driver nodes as following:'%self.number_of_drivers)
+        for x in self.drivers:
+            self.edit.append('%s'%x)
+    
 
 
 class MyMplCanvas(FigureCanvas):
@@ -994,7 +1026,30 @@ class MainWindow(QtGui.QMainWindow):
 
 
     def controllability_menu_StructralControllability_action(self):
-        pass
+        global GLOBAL_NETWORK
+        if not GLOBAL_NETWORK:
+            QtGui.QMessageBox.critical(None, 'Error', 'No Network found!!!\nGenerate/open a new network !!!')
+            return
+        if not nx.is_directed(GLOBAL_NETWORK):
+            QtGui.QMessageBox.warning(None, 'Exception', 'Only works on <i><b>directed</b></i> networks !\nPlease change a directed network')
+            return
+        driverNodes = LBSC.control_nodes(GLOBAL_NETWORK)
+        dialog = Dialog_DriverNodes(self)
+        dialog.setWindowTitle('driver nodes list')
+        dialog.add_contents(driverNodes)
+        result = dialog.exec_()
+        if result == QtGui.QDialog.Accepted:
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save file to', './results/driver_nodes/', "Text Files (*.txt)")
+            if fname:
+                with open(fname, 'w') as fp:
+                    print >> fp, '%d driver nodes'%dialog.number_of_drivers
+                    for x in driverNodes:
+                        print >> fp, '%s'%(x)
+                QtGui.QMessageBox.information(self, 'Message', 'Save Successfully !')
+        else:
+            pass
+
+
     def controllability_menu_ExactControllability_action(self):
         pass
 
