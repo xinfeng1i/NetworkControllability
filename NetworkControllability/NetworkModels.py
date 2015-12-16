@@ -8,7 +8,12 @@ import copy
 import subprocess, os
 import time
 import UtilityFunctions as UF
-import math;
+import math
+import sys
+
+def directed_erdos_renyi_network(n, p, seed=None):
+    G = nx.erdos_renyi_graph(n, p, seed, True)
+    return G
 
 def directed_watts_strogatz_graph(n, k, p):
     G = nx.watts_strogatz_graph(n, k, p)
@@ -36,7 +41,6 @@ def directed_newman_watts_strogatz_graph(n, k, p):
 
 def directed_barabasi_albert_graph(n, m):
     DG = nx.DiGraph()
-
     G = nx.barabasi_albert_graph(n, m)
     DG.add_nodes_from(G.nodes())
     for (u, v) in G.edges_iter():
@@ -53,7 +57,7 @@ def undirected_scale_free_network(n, average_degree, exp):
     The network is generated from the static model.
     """
     if exp == 1.0:
-        print "ERROR: The degree exponent cannot equals 1.0 !!!";
+        print >> sys.stderr, "ERROR: The degree exponent cannot equals 1.0 !!!";
         return;
     k = average_degree;
     r = math.fabs(exp);
@@ -89,11 +93,15 @@ def undirected_scale_free_network(n, average_degree, exp):
 if __name__ == "__main__":
     #G = nx.watts_strogatz_graph(20, 4, 0.1)
     #G = nx.newman_watts_strogatz_graph(20, 4, 0.1)
-    #closeness_dict = nx.closeness_centrality(G)
-    #print closeness_dict
 
     #DG = directed_watts_strogatz_graph(20, 4, 0.2)
     #DG = directed_newman_watts_strogatz_graph(20, 4, 0.2)
     #DG = directed_barabasi_albert_graph(20, 2)
     #eigenvector_dict = nx.eigenvector_centrality(DG, max_iter=1000)
-    G = undirected_scale_free_network(100, 6.0, 4.0);
+    #G = undirected_scale_free_network(100, 6.0, 4.0);
+
+    G = directed_erdos_renyi_network(20, 0.1)
+    print G.edges()
+    print G.nodes()
+    nx.draw(G, with_labels=True)
+    plt.show()
