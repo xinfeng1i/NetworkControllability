@@ -23,11 +23,12 @@ import subprocess, os # for run matlab to plot the figure
 
 __author__ = """Xin-Feng Li (silfer.lee@gmail.com)"""
 
-def RandomEdgeAttack(G):
+# check pass
+def RandomEdgeAttack(G, remove_fraction = 1.0):
     """ Random Edge Attack
     """
     n = G.number_of_nodes()
-    m = G.number_of_edges()
+    m = int(G.number_of_edges() * (remove_fraction + 0.0))
     
     tot_ND = [0] * (m+1)
     tot_T = [0] * (m+1)
@@ -51,12 +52,12 @@ def RandomEdgeAttack(G):
     return (tot_ND, tot_T)
 
 
-
-def InitialEdgeDegreeAttack(G):
+# check pass
+def InitialEdgeDegreeAttack(G, remove_fraction = 1.0):
     """ Initial Edge Degree Attack
     """
     n = G.number_of_nodes()
-    m = G.number_of_edges()
+    m = int(G.number_of_edges() * (remove_fraction + 0.0))
 
     tot_ND = [0] * (m + 1)
     tot_T = [0] * (m + 1)
@@ -81,13 +82,12 @@ def InitialEdgeDegreeAttack(G):
     return (tot_ND, tot_T)
 
 
-
-
-def RecalculatedEdgeDegreeAttack(G):
+# check pass
+def RecalculatedEdgeDegreeAttack(G, remove_fraction = 1.0):
     """ Recalculated Edge Degree Attack
     """
     n = G.number_of_nodes()
-    m = G.number_of_edges()
+    m = int(G.number_of_edges() * (remove_fraction+0.0) )
 
     tot_ND = [0] * (m + 1)
     tot_T = [0] * (m + 1)
@@ -118,12 +118,12 @@ def RecalculatedEdgeDegreeAttack(G):
     return (tot_ND, tot_T)
 
 
-
-def InitialEdgeBetweennessAttack(G):
+# check pass
+def InitialEdgeBetweennessAttack(G, remove_fraction = 1.0):
     """ Initial Edge Betweenness Attack
     """
     n = G.number_of_nodes()
-    m = G.number_of_edges()
+    m = int(G.number_of_edges() * (remove_fraction + 0.0))
 
     tot_ND = [0] * (m + 1)
     tot_T = [0] * (m + 1)
@@ -143,12 +143,12 @@ def InitialEdgeBetweennessAttack(G):
     return (tot_ND, tot_T)
 
 
-
-def RecalculatedEdgeBetweennessAttack(G):
+# check pass
+def RecalculatedEdgeBetweennessAttack(G, remove_fraction = 1.0):
     """ Recalculated Edge Betweenness Attack
     """
     n = G.number_of_nodes()
-    m = G.number_of_edges()
+    m = int(G.number_of_edges() * (remove_fraction + 0.0))
 
     tot_ND = [0] * (m + 1)
     tot_T = [0] * (m + 1)
@@ -170,50 +170,54 @@ def RecalculatedEdgeBetweennessAttack(G):
 if __name__ == "__main__":
     #G1 = nx.erdos_renyi_graph(100, 0.05)
 
-    for run_cnt in range(10):
-        G1 = nx.barabasi_albert_graph(100, 2)
-        G2 = G1.copy()
-        G3 = G1.copy()
-        G4 = G1.copy()
-        G5 = G1.copy()
+    #for run_cnt in range(10):
+    #    G1 = nx.barabasi_albert_graph(100, 2)
+    #    G2 = G1.copy()
+    #    G3 = G1.copy()
+    #    G4 = G1.copy()
+    #    G5 = G1.copy()
 
-        ND1, T1 = RandomEdgeAttack(G1)
-        with open("results/test1_run%d.csv"%(run_cnt), "w") as f:
-            writer = csv.writer(f, delimiter=',')
-            writer.writerows(zip(T1, ND1))
+    #    ND1, T1 = RandomEdgeAttack(G1)
+    #    with open("results/test1_run%d.csv"%(run_cnt), "w") as f:
+    #        writer = csv.writer(f, delimiter=',')
+    #        writer.writerows(zip(T1, ND1))
 
-        ND2, T2 = InitialEdgeBetweennessAttack(G2)
-        with open("results/test2.csv", "w") as f:
-            writer = csv.writer(f, delimiter=',')
-            writer.writerows(zip(T, ND))
+    #    ND2, T2 = InitialEdgeBetweennessAttack(G2)
+    #    with open("results/test2.csv", "w") as f:
+    #        writer = csv.writer(f, delimiter=',')
+    #        writer.writerows(zip(T, ND))
 
-        ND3, T3 = RecalculatedEdgeBetweennessAttack(G3)
-        with open("results/test3.csv", "w") as f:
-            writer = csv.writer(f, delimiter=',')
-            writer.writerows(zip(T, ND))
+    #    ND3, T3 = RecalculatedEdgeBetweennessAttack(G3)
+    #    with open("results/test3.csv", "w") as f:
+    #        writer = csv.writer(f, delimiter=',')
+    #        writer.writerows(zip(T, ND))
 
-        ND4, T4 = InitialEdgeDegreeAttack(G4)
-        with open("results/test4.csv", "w") as f:
-            writer = csv.writer(f, delimiter=',')
-            writer.writerows(zip(T, ND))
+    #    ND4, T4 = InitialEdgeDegreeAttack(G4)
+    #    with open("results/test4.csv", "w") as f:
+    #        writer = csv.writer(f, delimiter=',')
+    #        writer.writerows(zip(T, ND))
         
-        ND5, T5 = RecalculatedEdgeDegreeAttack(G5)
-        with open("results/test5.csv", "w") as f:
-            writer = csv.writer(f, delimiter=',')
-            writer.writerows(zip(T, ND))
+    #    ND5, T5 = RecalculatedEdgeDegreeAttack(G5)
+    #    with open("results/test5.csv", "w") as f:
+    #        writer = csv.writer(f, delimiter=',')
+    #        writer.writerows(zip(T, ND))
 
-    #G = nx.Graph()
-    #G.add_edges_from([(0, 1), (0, 2), (2, 3)])
-    #d = G.degree(G.nodes())
-    #b = nx.edge_betweenness(G)
-    #print d
-    #print b
+    G = nx.Graph()
+    G.add_edges_from([(0, 1), (0, 2), (2, 3)])
+    d = G.degree(G.nodes())
+    b = nx.edge_betweenness(G)
+    print d
+    print b
 
-    #d = {}
-    #for u, v in G.edges():
-    #    edge_degree = G.degree(u) * G.degree(v)
-    #    d[(u, v)] = edge_degree
-    #print 'initial degrees:', d
+    d = {}
+    for u, v in G.edges():
+        edge_degree = G.degree(u) * G.degree(v)
+        d[(u, v)] = edge_degree
+    print 'initial degrees:', d
 
-    #sorted_degrees = sorted(d.items(), key = operator.itemgetter(1), reverse=True)
-    #print 'sorted_degrees:', sorted_degrees
+    sorted_degrees = sorted(d.items(), key = operator.itemgetter(1), reverse=True)
+    print 'sorted_degrees:', sorted_degrees
+
+    G1 = nx.barabasi_albert_graph(200, 3)
+    print 'edge num:', G1.number_of_edges()
+
