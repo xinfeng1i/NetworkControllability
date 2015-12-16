@@ -8,6 +8,7 @@ import random
 import sys
 import NetworkModels as NM
 import strutral_controllability as LBSC # short for Liu & Barabasi Structural Controllability
+import exact_controllability as EC # short for 'Exact Controllability'
 
 GLOBAL_NETWORK = nx.Graph()
 
@@ -414,7 +415,10 @@ class MainWindow(QtGui.QMainWindow):
         ##############################################################################################
         self.controllability_menu = QtGui.QMenu('&Controllability', self)
         self.controllability_menu.addAction('Structral Controllability', self.controllability_menu_StructralControllability_action)
+        self.controllability_menu.addSeparator()
         self.controllability_menu.addAction('Exact Controllability', self.controllability_menu_ExactControllability_action)
+        self.controllability_menu.addAction('Number of Drivers', self.controllability_menu_NumberOfDrivers_action)
+        self.controllability_menu.addAction('Number of Drivers (Faster Algo.)', self.controllability_menu_FasterExactControllability_action)
         self.menuBar().addMenu(self.controllability_menu)
 
         ###############################################################################################
@@ -1051,8 +1055,44 @@ class MainWindow(QtGui.QMainWindow):
 
 
     def controllability_menu_ExactControllability_action(self):
-        pass
+        global GLOBAL_NETWORK
+        if not GLOBAL_NETWORK:
+            QtGui.QMessageBox.critical(None, 'Error', 'No Network found!!!\nGenerate/open a new network !!!')
+            return
+        (nDrivers, DriverNodes) = EC.get_driver_nodes(GLOBAL_NETWORK)
+        dialog = Dialog_DriverNodes(self)
+        dialog.setWindowTitle('driver nodes list')
+        dialog.add_contents(DriverNodes)
+        result = dialog.exec_()
+        if result == QtGui.QDialog.Accepted:
+            fname = QtGui.QFileDialog.getSaveFileName(self, 'Save file to', './results/driver_nodes/', "Text Files (*.txt)")
+            if fname:
+                with open(fname, 'w') as fp:
+                    print >> fp, '%d driver nodes'%dialog.number_of_drivers
+                    for x in driverNodes:
+                        print >> fp, '%s'%(x)
+                QtGui.QMessageBox.information(self, 'Message', 'Save Successfully !')
+        else:
+            pass
 
+    def controllability_menu_NumberOfDrivers_action(self):
+        global GLOBAL_NETWORK
+        if not GLOBAL_NETWORK:
+            QtGui.QMessageBox.critical(None, 'Error', 'No Network found!!!\nGenerate/open a new network !!!')
+            return
+        ND, ND_labmda = EC.get_number_of_driver_nodes(GLOBAL_NETWORK)
+        QtGui.QMessageBox.about(self, 'Results', 'Number of driver nodes: %d'%ND)
+
+        
+    def controllability_menu_FasterExactControllability_action(self):
+        global GLOBAL_NETWORK
+        if not GLOBAL_NETWORK:
+            QtGui.QMessageBox.critical(None, 'Error', 'No Network found!!!\nGenerate/open a new network !!!')
+            return
+        ND = EC.get_number_of_drivers_fast_rank(GLOBAL_NETWORK)
+        QtGui.QMessageBox.about(self, 'Results', 'Number of driver nodes: %d'%ND)
+
+    
     def robustness_menu_RondomAttack_action(self):
         pass
     def robustness_menu_RecaculatedMaxDegree_action(self):
