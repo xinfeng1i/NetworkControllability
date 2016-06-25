@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{37439f74-f312-4770-92bd-ec5e24c7fbd0}</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Degree_Betweenness_correlation.py</StartupFile>
+    <StartupFile>MainWindow.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -32,21 +32,57 @@
     <Compile Include="AttackBasedOnNode.py" />
     <Compile Include="ControllabilityRobustnessBasedOnEdgeAttack.py" />
     <Compile Include="ControllabilityRobustnessBasedOnNodeAttack.py" />
+    <Compile Include="EdgeAttackExperiments.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EdgeAttackRealWorldNetworks.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="exact_controllability.py" />
+    <Compile Include="CentralityOnControllability.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="GUI\__init__.py" />
     <Compile Include="MainWindow.py" />
+    <Compile Include="NetworkModels.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="networkxGUI.py" />
     <Compile Include="NodeAttackExperiments.py" />
+    <Compile Include="NodeEdgeAttackRealWorldNetworks.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PowerGridAnalysis.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="SimulatedAnnealing.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="strutral_controllability.py" />
     <Compile Include="NetworkControllability.py" />
     <Compile Include="Degree_Betweenness_correlation.py" />
+    <Compile Include="TempTempTempEdgeAttack.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TempTempTempFlowEdgeBetweenness.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TempTempTempFlowEdgeBetweenness2.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TempTempTempNodeAttack.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="test.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="test_edge_load.py" />
+    <Compile Include="TmpEdgeAttackExperiments.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UtilityFunctions.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GUI\" />

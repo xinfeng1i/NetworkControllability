@@ -15,8 +15,8 @@ def directed_erdos_renyi_network(n, p, seed=None):
     G = nx.erdos_renyi_graph(n, p, seed, True)
     return G
 
-def directed_watts_strogatz_graph(n, k, p):
-    G = nx.watts_strogatz_graph(n, k, p)
+def directed_watts_strogatz_graph(n, k, p, seed=None):
+    G = nx.watts_strogatz_graph(n, k, p, seed)
     DG = nx.DiGraph()
     DG.add_nodes_from(G.nodes())
     for (u, v) in G.edges_iter():
@@ -27,8 +27,8 @@ def directed_watts_strogatz_graph(n, k, p):
             DG.add_edge(v, u)
     return DG
 
-def directed_newman_watts_strogatz_graph(n, k, p):
-    G = nx.newman_watts_strogatz_graph(n, k, p)
+def directed_newman_watts_strogatz_graph(n, k, p, seed=None):
+    G = nx.newman_watts_strogatz_graph(n, k, p, seed)
     DG = nx.DiGraph()
     DG.add_nodes_from(G.nodes())
     for (u, v) in G.edges_iter():
@@ -39,9 +39,9 @@ def directed_newman_watts_strogatz_graph(n, k, p):
             DG.add_edge(v, u)
     return DG
 
-def directed_barabasi_albert_graph(n, m):
+def directed_barabasi_albert_graph(n, m, seed=None):
     DG = nx.DiGraph()
-    G = nx.barabasi_albert_graph(n, m)
+    G = nx.barabasi_albert_graph(n, m, seed)
     DG.add_nodes_from(G.nodes())
     for (u, v) in G.edges_iter():
         r = random.randint(0, 1)
